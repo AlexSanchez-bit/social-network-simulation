@@ -8,6 +8,7 @@ simpy = "*"
 experta = "*"
 mesa = "*"
 openai = "*"
+python-dotenv = "*"
 
 [dev-packages]
 
