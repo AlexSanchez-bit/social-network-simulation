@@ -1,6 +1,7 @@
 from openai import OpenAI
+import constants
 
-client = OpenAI(base_url="http://localhost:1234/v1", api_key="no-needed")
+client = OpenAI(base_url=constants.OPENAI_BASE_URL, api_key=constants.OPENAI_API_KEY)
 
 user_input = "I need create a simulation with 10 persons that they are friends in a social network. Also, i need simulate this interactions 55 times."
 
