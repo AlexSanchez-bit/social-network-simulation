@@ -1,5 +1,17 @@
 # Proyecto IA - Simulacion
 
+## Instrucciones
+
+### Variables de entorno
+
+Crea un fichero `.env` en la raiz del proyecto y añade las siguentes variables de entorno:
+
+```bash
+OPENAI_BASE_URL="http://localhost:1234/v1"
+OPENAI_API_KEY="no-needed"
+```
+
+
 ## Idea principal
 
 ### la idea principal de este proyecto es crear un simulador de redes sociales para analizar el alcance y crecimiento de los elementos de las publicaciones que se mueven en la red
