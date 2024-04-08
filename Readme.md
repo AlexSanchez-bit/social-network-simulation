@@ -73,9 +73,11 @@ Por tanto, podemos crear una matrix $C{n,3}$ donde $C_{i,j}$ indica que porcenta
 El objectivo es entonces encontrar el vector $v$ tal que tenga la mejor combinación de relevancias por cada característica y nos dé el mayor crecimiento en la red. Como el impacto de una post de un tema $i$ se mide por los 3 índices expuestos anteriormente (`likes`, `dislikes`, `shared`), entonces necesitamos un valor que indique cuan relevante es este índice para un post. Sea $\alpha, \beta, \lambda \in [-1, 1]$ los respectivos indices de relevancia, en donde $-1$ afecta muy negativamente al post y $1$ afecta muy positivamente al post.
 
 Por otro lado para medir el impacto de una publicación en la red esta se podría calcular como:
+
 $$
 I(v) = \alpha g_1(v) + \beta g_2(v) + \lambda g_3(v)
 $$
+
 donde $g_1(v), g_1(v)$ y $g_1(v)$ indican cuanto afectan los indices de crecimiento respectivamente entre todos los temas.
 
 La forma de calcular las 3 funciones son la misma, solo que se separan en funciones diferentes para mejor comprensión. Para esto hacemos uso de la función exponencial para recompenzar las a los valores mas grandes de $x$. Entonces podemos definir la función $g_1(v)$ que indica cuanto ... como:
@@ -85,16 +87,19 @@ g_1(v) = v_1 \alpha e ^ {\sum_{i=1}^{n} C_{i,1}}
 $$
 
 Entonces la función en su totalidad la podemos expresar como:
+
 $$
 I(v) = \alpha g_1(v) + \beta g_2(v) + \lambda g_3(v) = v_1 \alpha e ^ {\sum_{i=1}^{n} C_{i,1}} + v_2 \beta e ^ {\sum_{i=1}^{n} C_{i,2}} + v_3 \lambda e ^ {\sum_{i=1}^{n} C_{i,3}}
 $$
 
 Si definimos el vector $z = [\alpha, \beta, \lambda]$ entonces la función quedaría:
+
 $$
 I(v) = \sum_{j=1}^{3} z_j v_i  e ^ {\sum_{i=1}^{n} C_{i,j}}
 $$
 
 Ahora bien, como queremos hallar el vector $x$ tal que maximize el impacto en la red entonces tenemos que optimizar la funcion $I$ para calcular el máximo:
+
 $$
 \max I(v) = \max \sum_{j=1}^{3} z_j v_i e ^ {\sum_{i=1}^{n} C_{i,j}}
 $$
