@@ -5,9 +5,9 @@ import numpy as np
 
 # Calcular la cantidad relativa de likes, dislikes y compartidos por post
 def show_data_analisis(posts, usuarios_red_social, total_shares):
-    likes_relativos = [len(post["likes"]) / usuarios_red_social for post in posts]
-    dislikes_relativos = [len(post["dislikes"]) / usuarios_red_social for post in posts]
-    compartidos_relativos = [post["shared"] / max(1, total_shares) for post in posts]
+    likes_relativos = [len(post["likes"])  for post in posts]
+    dislikes_relativos = [len(post["dislikes"])  for post in posts]
+    compartidos_relativos = [post["shared"]  for post in posts]
 
     # Crear una sola ventana con tres gráficas
     fig, axs = plt.subplots(3)
@@ -107,3 +107,31 @@ def stadistics_per_characteristic(
 
     # Mostrar la gráfica
     plt.show()
+    
+def user_opinions(M,characteristics):
+    # Calcular las medias de las columnas de la matriz M
+    medias_columnas = np.mean(M, axis=0)
+
+    # Obtener las dimensiones de la matriz
+    n, m = M.shape
+
+    # Crear una nueva figura para las gráficas
+    plt.figure(figsize=(10, 5))
+
+    # Iterar sobre las columnas de la matriz
+    for j in range(m):
+        plt.plot(range(1, n+1), M[:, j], label=f' {characteristics[j]}')  # Graficar la columna j vs los índices de fila
+
+    # Configurar las etiquetas de los ejes y el título
+    plt.xlabel('Agente (i)')
+    plt.ylabel('Relevancia de la Característica')
+    plt.title('opinión de los agentes respecto a las características')
+
+    # Agregar leyenda
+    plt.legend()
+
+    # Mostrar la gráfica
+    plt.show()
+
+    # Devolver las medias de las columnas
+    return medias_columnas
