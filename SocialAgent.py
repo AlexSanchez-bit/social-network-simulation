@@ -66,10 +66,12 @@ class SocialAgent(Agent):
 
     def calculate_like_score(self, post_id):
         # Calcular el nivel de gusto hacia un post en base a las creencias
-        affinity_score = np.dot(posts[post_id]["features"], self.beliefs["affinity"])
+        norm1 = np.linalg.norm(posts[post_id]["features"])
+        norm2 = np.linalg.norm(self.beliefs["affinity"])
 
-        # calculating post relevance
+        affinity_score = np.dot(posts[post_id]["features"], self.beliefs["affinity"])/(norm1*norm2)
         post_relevance = 0
+        friends=0
 
         for user in self.beliefs["trust"]:
             if (
@@ -77,12 +79,14 @@ class SocialAgent(Agent):
                 and user in posts[post_id]["likes"]
             ):
                 post_relevance += 1
+                friends+=1
             if (
                 self.beliefs["trust"][user] > self.beliefs["friend_definition"]
                 and user in posts[post_id]["dislikes"]
             ):
                 post_relevance -= 1
-        post_relevance /= max(len(posts[post_id]["likes"]), 1)
+                friends+=1
+        post_relevance /= max(friends, 1)
         post_relevance *= self.desires["group_conformity"]
 
         return (
@@ -98,7 +102,7 @@ class SocialAgent(Agent):
             # obtaining the user relevance for me
             friend_rate = self.beliefs["trust"][friend_id]
             # if i like the post and i have high friendship with the user , then share
-            if (friend_rate + share_meter) / 2 > self.beliefs["share_probability"]:
+            if (friend_rate * share_meter) > self.beliefs["share_probability"]:
                 self.intentions.append(
                     ("share", (friend_rate + like_score) / 2, post_id, friend_id)
                 )
@@ -112,15 +116,18 @@ class SocialAgent(Agent):
             positive_interactions = 0
             negative_interactions = 0  # to avoiding divide by 0 error
             if sender_id in self.desires["friends"]:
+
                 positive_interactions = (
                     self.desires["friends"][sender_id]["positive_interactions"]
                     / self.desires["friends"][sender_id]["total_interactions"]
                 )
+
                 # calculating the negative interactions so far
                 negative_interactions = (
                     self.desires["friends"][sender_id]["negative_interactions"]
                     / self.desires["friends"][sender_id]["total_interactions"]
                 )
+
             else:
                 self.desires["friends"][sender_id] = {
                     "positive_interactions": 0,
@@ -128,23 +135,18 @@ class SocialAgent(Agent):
                     "total_interactions": 0,
                 }
             # calculating the confidence change based on the confidence_change and previous afinity value
+
             confidence_change = (
-                like_score
+               ( like_score
                 + np.random.random()
                 * self.beliefs["extroversion"]
-                * positive_interactions
+                * positive_interactions)
                 / negative_interactions
                 if negative_interactions > 0
                 else 1
-            ) / 2
+            ) 
             # if the change was positive , the afinity increases the new afinty grows in scale otherwise it decrease
-            new_afnity = confidence_change * (last_afinity / confidence_change)
-            new_afinity_scale = max(new_afnity, last_afinity)
-            new_afnity = new_afnity / (
-                new_afinity_scale if new_afinity_scale > 0 else 1
-            )
-            print(new_afnity)
-            self.beliefs["trust"][sender_id] = new_afnity
+            self.beliefs["trust"][sender_id] = confidence_change
         else:
             self.beliefs["trust"][sender_id] = 0
             self.desires["friends"][sender_id] = {
@@ -166,6 +168,7 @@ class SocialAgent(Agent):
 
             positive_interactions = 0
             negative_interactions = 0
+
             if sender_id in self.desires["friends"]:
                 positive_interactions = (
                     self.desires["friends"][sender_id]["positive_interactions"]
@@ -176,27 +179,31 @@ class SocialAgent(Agent):
                     self.desires["friends"][sender_id]["negative_interactions"]
                     / self.desires["friends"][sender_id]["total_interactions"]
                 )
+                
+
             react_probability = (
                 friend_trust
                 + np.random.random() * self.beliefs["curiosity"]
                 + np.random.random() * positive_interactions
                 + np.random.random() * negative_interactions
-            ) / 4
+            ) /4
 
             if react_probability <= self.beliefs["reaction_brobability"]:
                 return
+            
 
         # Calcular el nivel de gusto hacia el post
-        post_features = posts[post_id]["features"]
         like_score = self.calculate_like_score(post_id)
 
         liked_scores_relation = 0
 
+        norm2 = np.linalg.norm(posts[post_id]["features"])
         for features in (
             self.desires["most_liked_post"] + self.desires["most_disliked_post"]
         ):
             # if the post features have been seen make a penalization
-            if np.dot(posts[post_id]["features"], features) > 0.8:
+            norm1 = np.linalg.norm(features)
+            if np.dot(posts[post_id]["features"], features)/(norm2*norm1) > 0.8:
                 liked_scores_relation += 1
 
         like_score = like_score / max(liked_scores_relation, 1)
@@ -212,23 +219,21 @@ class SocialAgent(Agent):
         # Actualizar la relación con el agente que compartió el post
         if sender_id is not None:
             disliked_score = 0
+            norm2 = np.linalg.norm(posts[post_id]["features"])
             for features in self.desires["most_disliked_post"]:
-                # if the post features is somethong i dont like penalize the relation with the sender
-                if np.dot(posts[post_id]["features"], features) > 0.9:
+                # if the post features is something i dont like penalize the relation with the sender
+                norm1 = np.linalg.norm(features)
+                if np.dot(posts[post_id]["features"], features)/(norm1*norm2) > 0.9:
                     disliked_score += 1
             self.update_relationship(sender_id, like_score / max(disliked_score, 1))
 
         self.decide_to_share(like_score, post_id)
 
-        # verifica si ya le dio like al post
-        if self.id in posts[post_id]["likes"]:
-            like_score = 0
-
         # Agregar la acción a intentions
-        if like_score > self.beliefs["like_probability"]:
+        if like_score>0 and like_score <= self.beliefs["like_probability"]:
             self.intentions.append(("like", like_score, post_id))
-        elif like_score < -1 * self.beliefs["like_probability"]:
-            self.intentions.append(("dislike", like_score, post_id))
+        elif like_score >= -1 * self.beliefs["like_probability"]:
+            self.intentions.append(("dislike", -1*like_score, post_id))
 
     def align_ideas_with_friends(self, post_id):
         post = posts[post_id]
@@ -254,18 +259,6 @@ class SocialAgent(Agent):
             self.beliefs["affinity"] += move_vector
         return friends_impact
 
-    def update_internal_params(self):
-        positive_interactions_in_group = 0
-        interactions = 0
-        for user in self.beliefs["trust"]:
-            if self.beliefs[user] > self.beliefs["friend_definition"]:
-                positive_interactions_in_group += self.desires["friends"][user][
-                    "positive_interactions"
-                ]
-                interactions += self.desires["friends"][user]["total_interactions"]
-        self.desires["group_conformity"] = positive_interactions_in_group / max(
-            interactions, 1
-        )
 
     def step(self):
         global performed_an_action
@@ -323,10 +316,8 @@ class SocialModel(Model):
         # creando los agentes
         for i in range(self.num_agents):
             # relaciones aleatrias con los usuarios de la red
-            affinity_beliefs = np.random.randn(
-                len(posts[0]["features"])
-            )  # Creencias de afinidad aleatorias
-            trust = np.random.randn(np.random.randint(N))
+            affinity_beliefs = np.random.normal(loc=0.5, scale=0.1, size=len(posts[0]["features"]))
+            trust = np.random.normal(loc=0.5, scale=0.1, size=np.random.randint(N))
             trust_beliefs = {}
             for i, a in enumerate(trust):
                 trust_beliefs[i] = a
@@ -335,17 +326,17 @@ class SocialModel(Model):
                 self,
                 affinity_beliefs,
                 trust_beliefs,
-                np.random.randn(),
-                np.random.randn(),
-                np.random.randn(),
-                np.random.randn(),
-                np.random.randn(),
-                np.random.randn(),
-                np.random.randn(),
-                np.random.randn(),
-                np.random.randn(),
-                np.random.randn(),
-                np.random.randn(),
+                np.clip(np.random.normal(loc=0.5,scale=0.1),0,1),
+                np.clip(np.random.normal(loc=0.5,scale=0.1),0,1),
+                np.clip(np.random.normal(loc=0.5,scale=0.1),0,1),
+                np.clip(np.random.normal(loc=0.5,scale=0.1),0,1),
+                np.clip(np.random.normal(loc=0.5,scale=0.1),0,1),
+                np.clip(np.random.normal(loc=0.5,scale=0.1),0,1),
+                np.clip(np.random.normal(loc=0.5,scale=0.1),0,1),
+                np.clip(np.random.normal(loc=0.5,scale=0.1),0,1),
+                np.clip(np.random.normal(loc=0.5,scale=0.1),0,1),
+                np.clip(np.random.normal(loc=0.5,scale=0.1),0,1),
+                np.clip(np.random.normal(loc=0.5,scale=0.1),0,1)
             )
             self.schedule.add(agent)
 
