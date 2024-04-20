@@ -1,0 +1,34 @@
+from ..tools.prompts import TopicRelevance
+from ..nlp.similary import embed, load_topics_embeddings, cosine_distance
+import numpy as np
+
+def build_topics_relevances(main_topics: list[TopicRelevance]):    
+    """Build the topics based in the mainly topics extracted from the user input"""
+    # embeddings of all topics
+    all_topics = load_topics_embeddings()
+    n = len(all_topics)
+    m = len(main_topics)
+    # calculate the embedding representation of each one
+    ai_topics = embed(np.array([t.topic for t in main_topics]))
+    
+    # relevance of each topic on the network
+    relevance = [] 
+    for t in all_topics:
+        rel = 0
+        # average of the weighted sum to calculate topic[i] relevance
+        for i, ait in enumerate(ai_topics):
+            rel += (
+                main_topics[i].relevance * cosine_distance(t['embeddings'], ait['embeddings'])
+            )
+        relevance.append(rel / m)
+    
+    return relevance
+
+
+def topics_similary_matrix():
+    embeddings = np.array([x['embedding'] for x in load_topics_embeddings()])
+    sim = len(embeddings) * [[]]
+    for i, t in enumerate(embeddings):
+        for tt in embeddings:
+            sim[i].append(cosine_distance(t, tt))
+    return sim
