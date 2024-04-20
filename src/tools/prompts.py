@@ -25,8 +25,8 @@ class UserGloalsImportance(LLMJsonObjects):
             print(e)
             return False
 
-    def __str__(self) -> str:
-        return "({likes}, {dislikes}, {shares})".format(likes=self.likes, dislikes=self.dislikes, shares=self.shares)
+    def __repr__(self) -> str:
+        return "(Likes: {likes}, dislikes: {dislikes}, shares:{shares})".format(likes=self.likes, dislikes=self.dislikes, shares=self.shares)
 class TopicRelevance(LLMJsonObjects):
     topic: str
     relevance: float
@@ -35,14 +35,12 @@ class TopicRelevance(LLMJsonObjects):
         assert 0 <= relevance <= 1, "The topic relevance must be between [0, 1]"
         self.topic = topic
         self.relevance = relevance
-        
-    def __str__(self) -> str:
-        return "({topic}, {relevance})".format(topic=self.topic, relevance=self.relevance)
+
+    def __repr__(self) -> str:
+        return "(Topic: {topic}, relev: {relevance})".format(topic=self.topic, relevance=self.relevance)
 
 
 def extract_user_goals(user_prompt: str, llm: LLModel, temp=0.4, lang='en') -> UserGloalsImportance:
-    assert len(map(lambda x: x.strip(), user_prompt.split(' '))) < 500, "Your prompt must be less than 500 words"
-
     PROMPTS = {
         "en": """
 Based on the text with the goals of a user in the social network, it extracts three numbers that represent the relevance of likes, dislikes and shares for the user
@@ -89,7 +87,6 @@ Respuesta:
 
 
 def extract_number_agents(user_prompt: str, llm: LLModel, temp=0.4, lang='en') -> int:
-    assert len(map(lambda x: x.strip(), user_prompt.split(' '))) < 500, "Your prompt must be less than 500 words"
     PROMPTS = {
         'en': """
 Your goal is extract from a user's text about their community on the social network the number of people who belong to the network.
@@ -167,7 +164,7 @@ Respuesta:
     parsed = json.loads(result)
     try:
         return [
-            TopicRelevance(t['topic'], t['relevance'])
+            TopicRelevance(t['name'], t['relevance'])
             for t in parsed
         ]
     except:

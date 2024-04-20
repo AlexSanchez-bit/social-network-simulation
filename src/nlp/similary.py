@@ -1,10 +1,11 @@
 import voyageai
 import pickle
 import json
+import numpy as np
 from ..constants import VOYAGE_API_KEY, VOYAGE_EMBED_BATCH_SIZE
 
 def load_topics_embeddings():
-    embeddings = pickle.load(open('./topic-embed.pkl', 'rb'))
+    embeddings = pickle.load(open('./data/topic-embed.pkl', 'rb'))
     return embeddings
 
 def save_topics_embeddings():
@@ -24,7 +25,7 @@ def embed(texts: list[str]):
 
     for i in range(0, len(texts), VOYAGE_EMBED_BATCH_SIZE):
         batch = texts[i:i+VOYAGE_EMBED_BATCH_SIZE]
-        result = vo.embed(batch, model='voyage-lite-02-instruct')
+        result = vo.embed(batch, model='voyage-law-2')
         
         for j in range(len(batch)):
             embeddings.append({
@@ -33,5 +34,8 @@ def embed(texts: list[str]):
             })
     return embeddings
 
-# save_topics_embeddings()
-# load_topics_embeddings()
+def cosine_distance(x, y):
+    assert len(x) == len(y), "The arrays must have the same length"
+    dot = np.dot(x, y)
+    n1, n2 = np.linalg.norm(x), np.linalg.norm(y)
+    return dot / (n1 * n2)
