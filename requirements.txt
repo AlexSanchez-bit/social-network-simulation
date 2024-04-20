@@ -7,3 +7,4 @@ voiageai
 faiss-cpu
 pickle
 anthropic
+streamlit
