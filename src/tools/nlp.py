@@ -1,7 +1,7 @@
 from openai import OpenAI
 import abc
 import json
-from .constants import OPENAI_API_KEY, OPENAI_BASE_URL 
+from ..constants import OPENAI_API_KEY, OPENAI_BASE_URL 
 
 client = OpenAI(base_url=OPENAI_BASE_URL, api_key=OPENAI_API_KEY)
 SYSTEM_PROMPT = "You're a helpful AI assisting me in managing a social network simulation."
