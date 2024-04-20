@@ -11,9 +11,15 @@ from DataAnalisys import (
     user_opinions
 )
 
+import sys
+
 
 if __name__ == "__main__":
     # Crear un modelo con 10 agentes
+    actual_stdout = sys.stdout
+    log_file = open('logs.txt','w')
+    
+    sys.stdout=log_file
     N = 1000
     simulations_count=1
 
@@ -73,8 +79,5 @@ if __name__ == "__main__":
     )
     collected_opinions =np.array([agent.beliefs['affinity'] for agent in  model.schedule.agents])
     user_opinions(collected_opinions,characteristics)
-    print(np.mean(np.array(atention_time)))
+    print('tiempo medio en que estuvieron vivos los posts: ',np.mean(np.array(atention_time)))
 
-    # show_users_groups([agent.beliefs["afinity"] for agent in model.schedule.agents])
-    # for i,post in enumerate(posts):
-    #     print('post' , i , post['likes']  ,post['dislikes'] ,post['shared'])
