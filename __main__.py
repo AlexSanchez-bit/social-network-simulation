@@ -15,11 +15,11 @@
 
 
 from src.nlp.llm import LLMMessage
-from src.nlp.llm_claude import LLMClaude
+from src.tools.llm_claude import LLMClaude
 
 llm = LLMClaude()
 message = LLMMessage('user', 'Tell me something about you')
 
-x = llm.query(messages=message)
+x = llm.query(messages=[message])
 
 print(x)
