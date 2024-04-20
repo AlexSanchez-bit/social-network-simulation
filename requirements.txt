@@ -1,5 +1,8 @@
-simpy = "*"
-experta = "*"
-mesa = "*"
-openai = "*"
-python-dotenv = "*"
+simpy
+experta
+mesa
+openai
+python-dotenv
+voiageai
+faiss-cpu
+pickle
