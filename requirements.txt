@@ -6,3 +6,4 @@ python-dotenv
 voiageai
 faiss-cpu
 pickle
+anthropic
