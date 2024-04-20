@@ -5,7 +5,7 @@ import numpy as np
 from ..constants import VOYAGE_API_KEY, VOYAGE_EMBED_BATCH_SIZE
 
 def load_topics_embeddings():
-    embeddings = pickle.load(open('./topic-embed.pkl', 'rb'))
+    embeddings = pickle.load(open('./data/topic-embed.pkl', 'rb'))
     return embeddings
 
 def save_topics_embeddings():
