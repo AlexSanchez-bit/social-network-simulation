@@ -2,7 +2,7 @@ import abc
 import json
 from ..nlp.llm import LLModel, LLMMessage
 
-SYSTEM_PROMPT = "You're a helpful AI assisting me in managing a social network simulation."
+SYSTEM_PROMPT = "You're a helpful AI assisting me in managing a social network simulation. You are an expect in community management and growth in social networks."
 
 
 class LLMJsonObjects(abc.ABC):
@@ -45,27 +45,25 @@ def extract_user_goals(user_prompt: str, llm: LLModel, temp=0.4, lang='en') -> U
 
     PROMPTS = {
         "en": """
-            Your goal is to extract from a text outlining a user's objectives with the simulation,
-            three numbers between 0 and 1 representing the importance he attributes to the likes, dislikes, and shares of a post within the social network.
-            To do this, carefully evaluate the user's motivations, goals, and feelings. All values must be different to zero. Extract this data based solely on the information.
-            Return the result as a JSON with the properties: "likes", "dislikes" and "shares". Don't reply anything more.
-
-            --------------------------------------------------------------------------------------------   
-            {user_prompt}
-            --------------------------------------------------------------------------------------------
-            Result:
-        """,
+Based on the text with the goals of a user in the social network, it extracts three numbers that represent the relevance of likes, dislikes and shares for the user
+achieve their objetives. The numbers will be in the [0, 1] range. Use only the context provided and don't add any other comments. Return the answer in JSON format 
+with the keys: likes, dislikes and shares.
+The user text:
+<context>
+{user_prompt}
+<context>
+Answer:         
+""",
         "es": """
-            Tu objetivo es extraer de un texto que plasma los objetivos de un usuario con la simulación, 
-            tres números entre 0 y 1 que representan la importancia que él le atribuye a los likes, dislikes y shares de una publicación dentro de la red social.
-            Para esto evalúa detenidamente las motivaciones del usuario, sus objetivos y sentimientos. Todos los valores deben ser diferentes de cero. Extrae estos datos basándote solo en la información de texto.
-            Devuélve el resultado en formato JSON con las propiedades "likes", "dislikes" y "shares". No respondas mas nada.
-            
-            --------------------------------------------------------------------------------------------   
-            {user_prompt}
-            --------------------------------------------------------------------------------------------
-            Resultado:
-        """
+Basado en el texto con los objetivos de un usuario con la red social, extrae 3 números que representan la relevancia de los likes, dislikes y shares
+para que el usuario obtenga su objetivo. Los números estarán en el rango [0,1]. Utiliza solo el contexto proporcionado y no añadas cualquier otro comentario.
+Devuelve al respuesta en formato JSON con las llaves: likes, dislikes y shares.
+El texto del usuario:
+<context>
+{user_prompt}
+<context>
+Respuesta:
+"""
     }
     
     try:
@@ -94,22 +92,23 @@ def extract_number_agents(user_prompt: str, llm: LLModel, temp=0.4, lang='en') -
     assert len(map(lambda x: x.strip(), user_prompt.split(' '))) < 500, "Your prompt must be less than 500 words"
     PROMPTS = {
         'en': """
-            Your goal is extract from the user text within <context> tags, the number of peoples that belongs to the social network.
-            Use just the given context and return just the number as the answer. If you don't know the answer, just return 0.
-            <context>
-            {user_prompt}
-            <context>
-            Answer:
-        """,
+Your goal is extract from a user's text about their community on the social network the number of people who belong to the network.
+Use just the given context and return just the number as the answer. If you don't know the answer, just return 0.
+Here is the text:
+<context>
+{user_prompt}
+<context>
+Answer:
+""",
         'es': """
-            Tu objetivo es extraer del texto del usuario el número de personas que pertenencen a la red social.
-            Usa solo el contexto proporcionado y devuelve solo el número como respuesta. Si no sabes la respuesta devuelve 0.
-            Aquí está el texto:
-            <context>
-            {user_prompt}
-            <context>
-            Respuesta:
-        """
+Tu objetivo es extraer de un texto de un usuario sobre su comunidad en la red social el número de personas que pertenencen a la red.
+Usa solo el contexto proporcionado y devuelve solo el número como respuesta. Si no sabes la respuesta devuelve 0.
+Aquí está el texto:
+<context>
+{user_prompt}
+<context>
+Respuesta:
+"""
     }
     
     try:
@@ -130,21 +129,27 @@ def extract_number_agents(user_prompt: str, llm: LLModel, temp=0.4, lang='en') -
 def extract_topics(user_prompt, llm: LLModel, temp=0.4, lang='en') -> list[TopicRelevance]:
     PROMPTS = {
         'en': """
-            Analize the following description of a community in a social network and extract the topocs that are interestings in the network, and some others derivates 
-            that maybe are interestings. Use just the information given within the <context> tags. Return the topics as an array, without any additional commentary.
-        """,
+Analyze the following description of a community on a social network and:
+1. extract the topics relevant on the network and some others that may also be of interest. 
+2. For each extracted topic, return a number at [0, 1] range that indicates the percentage of the community that may be interested in that topic.
+Use only the information provided within the <context> tags, Return the topics as a array and each topic will be a object with the keys: name, relevance. Do not return any other comments.
+<context>
+{user_prompt}
+<context>
+Answer:
+""",
         'es': """
-            Analiza la siguiente descripción de una comunidad de una red social y:
-            1. extrae los temas los temas relevantes para dicha red y algunos que pudieran interesar también.
-            2. por cada tema extraído, devuelve un número entre 0 y 1 que indique el porcentaje de la comunidad que le puede interesar ese tema.
-            
-            Usolo la información proporcionada entre las etiquetas <context>. Devuelve los temas en forma de array y cada tema tenga las llaves name y relevance. No retornes ningún otro comentario.
-            
-            <context>
-            {user_prompt}
-            <context>
-            Respuesta:
-        """
+Analiza la siguiente descripción de una comunidad de una red social y:
+1. extrae los temas los temas relevantes para dicha red y algunos que pudieran interesar también.
+2. por cada tema extraído, devuelve un número entre 0 y 1 que indique el porcentaje de la comunidad que le puede interesar ese tema.
+
+Usolo la información proporcionada entre las etiquetas <context>. Devuelve los temas en forma de array y cada tema tenga las llaves name y relevance. No retornes ningún otro comentario.
+
+<context>
+{user_prompt}
+<context>
+Respuesta:
+"""
     }
     
     try:
