@@ -321,24 +321,24 @@ class SocialModel(Model):
             trust_beliefs = {}
             for i, a in enumerate(trust):
                 trust_beliefs[i] = a
-            agent = SocialAgent(
-                i,
-                self,
-                affinity_beliefs,
-                trust_beliefs,
-                np.clip(np.random.normal(loc=0.5,scale=0.1),0,1),
-                np.clip(np.random.normal(loc=0.5,scale=0.1),0,1),
-                np.clip(np.random.normal(loc=0.5,scale=0.1),0,1),
-                np.clip(np.random.normal(loc=0.5,scale=0.1),0,1),
-                np.clip(np.random.normal(loc=0.5,scale=0.1),0,1),
-                np.clip(np.random.normal(loc=0.5,scale=0.1),0,1),
-                np.clip(np.random.normal(loc=0.5,scale=0.1),0,1),
-                np.clip(np.random.normal(loc=0.5,scale=0.1),0,1),
-                np.clip(np.random.normal(loc=0.5,scale=0.1),0,1),
-                np.clip(np.random.normal(loc=0.5,scale=0.1),0,1),
-                np.clip(np.random.normal(loc=0.5,scale=0.1),0,1)
-            )
-            self.schedule.add(agent)
+                agent = SocialAgent(
+                    i,
+                    self,
+                    affinity_beliefs=affinity_beliefs,
+                    trust_beliefs=trust_beliefs,
+                    like_probability=                np.clip(np.random.normal(loc=0.5,scale=0.1),0,1),
+                    share_probability=np.clip(np.random.normal(loc=0.5,scale=0.1),0,1),
+                    afinity_weight=np.clip(np.random.normal(loc=0.5,scale=0.1),0,1),
+                    relevance_weight=np.clip(np.random.normal(loc=0.5,scale=0.1),0,1),
+                    others_impact=np.clip(np.random.normal(loc=0.5,scale=0.1),0,1),
+                    friend_definition=np.clip(np.random.normal(loc=0.5,scale=0.1),0,1),
+                    curiosity=np.clip(np.random.normal(loc=0.5,scale=0.1),0,1),
+                    extroversion=np.clip(np.random.normal(loc=0.5,scale=0.1),0,1),
+                    reaction_brobability=np.clip(np.random.normal(loc=0.5,scale=0.1),0,1),
+                    imitation_influence=np.clip(np.random.normal(loc=0.5,scale=0.1),0,1),
+                    group_conformity=np.clip(np.random.normal(loc=0.5,scale=0.1),0,1),
+                )
+                self.schedule.add(agent)
 
     def step(self):
         self.schedule.step()
