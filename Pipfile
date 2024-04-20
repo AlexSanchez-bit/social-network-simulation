@@ -9,6 +9,8 @@ experta = "*"
 mesa = "*"
 openai = "*"
 python-dotenv = "*"
+matplotlib = "*"
+scikit-learn = "*"
 
 [dev-packages]
 
