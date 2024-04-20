@@ -1,29 +1,24 @@
-from openai import OpenAI
 import abc
 import json
-from ..constants import OPENAI_API_KEY, OPENAI_BASE_URL 
+from ..nlp.llm import LLModel, LLMMessage
 
-client = OpenAI(base_url=OPENAI_BASE_URL, api_key=OPENAI_API_KEY)
 SYSTEM_PROMPT = "You're a helpful AI assisting me in managing a social network simulation."
 
 
 class LLMJsonObjects(abc.ABC):
     def from_string(self, obj: str) -> bool:
         raise NotImplementedError()
-
-
 class UserGloalsImportance(LLMJsonObjects):
     likes: float
     dislikes: float
     shares: float
 
     def from_string(self, str_obj: str) -> bool:
-        print(str_obj)
         try:
             data_dict = json.loads(str_obj)
-            # self.likes = data_dict['likes']
-            # self.dislikes = data_dict['dislikes']
-            # self.shares = data_dict['shares']
+            self.likes = data_dict['likes']
+            self.dislikes = data_dict['dislikes']
+            self.shares = data_dict['shares']
             
             return True
         except Exception as e:
@@ -31,17 +26,21 @@ class UserGloalsImportance(LLMJsonObjects):
             return False
 
     def __str__(self) -> str:
-        return """
-            {
-                likes: {likes},
-                dislikes: {dislikes},
-                shares: {shares}
-            }
-        """.format(likes=self.likes, dislikes=self.dislikes, shares=self.shares)
+        return "({likes}, {dislikes}, {shares})".format(likes=self.likes, dislikes=self.dislikes, shares=self.shares)
+class TopicRelevance(LLMJsonObjects):
+    topic: str
+    relevance: float
+    
+    def __init__(self, topic: str, relevance: float) -> None:
+        assert 0 <= relevance <= 1, "The topic relevance must be between [0, 1]"
+        self.topic = topic
+        self.relevance = relevance
+        
+    def __str__(self) -> str:
+        return "({topic}, {relevance})".format(topic=self.topic, relevance=self.relevance)
 
 
-
-def extract_user_goals(user_prompt, temp=0.4, lang='en') -> UserGloalsImportance:
+def extract_user_goals(user_prompt: str, llm: LLModel, temp=0.4, lang='en') -> UserGloalsImportance:
     assert len(map(lambda x: x.strip(), user_prompt.split(' '))) < 500, "Your prompt must be less than 500 words"
 
     PROMPTS = {
@@ -74,20 +73,16 @@ def extract_user_goals(user_prompt, temp=0.4, lang='en') -> UserGloalsImportance
     except KeyError:
         print(f'{lang} is not a valid language. Expect: [es, en]')
         return None
+    
+    messages = [
+        LLMMessage('system', SYSTEM_PROMPT),
+        LLMMessage('user', prompt.format(user_prompt=user_prompt))
+    ]
 
-    completion = client.chat.completions.create(
-        model="local-model",
-        messages=[
-            {"role": "system", "content": SYSTEM_PROMPT},
-            {"role": "user", "content": prompt.format(user_prompt=user_prompt)
-            }
-        ],
-        temperature=temp
-    )
-
-    message =  completion.choices[0].message
+    result = llm.query(messages)
     data = UserGloalsImportance()
-    ok = data.from_string(message.content)
+    ok = data.from_string(result)
+    
     if ok:
         return data
     else:
@@ -95,7 +90,7 @@ def extract_user_goals(user_prompt, temp=0.4, lang='en') -> UserGloalsImportance
 
 
 
-def extract_number_agents(user_prompt: str, temp=0.4, lang='en'):
+def extract_number_agents(user_prompt: str, llm: LLModel, temp=0.4, lang='en') -> int:
     assert len(map(lambda x: x.strip(), user_prompt.split(' '))) < 500, "Your prompt must be less than 500 words"
     PROMPTS = {
         'en': """
@@ -107,8 +102,9 @@ def extract_number_agents(user_prompt: str, temp=0.4, lang='en'):
             Answer:
         """,
         'es': """
-            Tu objetivo es extraer del texto del usuario entre las etiquetas <conext> el número de personas que pertenencen a la red social.
+            Tu objetivo es extraer del texto del usuario el número de personas que pertenencen a la red social.
             Usa solo el contexto proporcionado y devuelve solo el número como respuesta. Si no sabes la respuesta devuelve 0.
+            Aquí está el texto:
             <context>
             {user_prompt}
             <context>
@@ -116,19 +112,58 @@ def extract_number_agents(user_prompt: str, temp=0.4, lang='en'):
         """
     }
     
+    try:
+        prompt = PROMPTS[lang]
+    except KeyError:
+        print(f'{lang} is not a valid language. Expect: [es, en]')
+        return None
     
-def extract_topics(user_prompt, temp=0.4, lang='en'):
+    messages = [
+        LLMMessage('system', SYSTEM_PROMPT),
+        LLMMessage('user', prompt.format(user_prompt=user_prompt))
+    ]
+
+    result = llm.query(messages)
+    return result
+    
+
+def extract_topics(user_prompt, llm: LLModel, temp=0.4, lang='en') -> list[TopicRelevance]:
     PROMPTS = {
         'en': """
             Analize the following description of a community in a social network and extract the topocs that are interestings in the network, and some others derivates 
             that maybe are interestings. Use just the information given within the <context> tags. Return the topics as an array, without any additional commentary.
         """,
         'es': """
-            Analiza la siguiente descripción de una comunidad de una red social y extrae los temas que interesan en la red y algunos derivados que puedan
-            iteresar también. Usa solo la información proporcionada entre la las etiquetas <context>. Devuelve los temas en forma de array. No retornes ningún otro comentario.
+            Analiza la siguiente descripción de una comunidad de una red social y:
+            1. extrae los temas los temas relevantes para dicha red y algunos que pudieran interesar también.
+            2. por cada tema extraído, devuelve un número entre 0 y 1 que indique el porcentaje de la comunidad que le puede interesar ese tema.
+            
+            Usolo la información proporcionada entre las etiquetas <context>. Devuelve los temas en forma de array y cada tema tenga las llaves name y relevance. No retornes ningún otro comentario.
+            
             <context>
             {user_prompt}
             <context>
             Respuesta:
         """
     }
+    
+    try:
+        prompt = PROMPTS[lang]
+    except KeyError:
+        print(f'{lang} is not a valid language. Expect: [es, en]')
+        return None
+    
+    messages = [
+        LLMMessage('system', SYSTEM_PROMPT),
+        LLMMessage('user', prompt.format(user_prompt=user_prompt))
+    ]
+
+    result = llm.query(messages)
+    parsed = json.loads(result)
+    try:
+        return [
+            TopicRelevance(t['topic'], t['relevance'])
+            for t in parsed
+        ]
+    except:
+        return None
