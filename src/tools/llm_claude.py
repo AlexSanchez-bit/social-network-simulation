@@ -1,5 +1,5 @@
 import anthropic
-from llm import LLModel, LLMMessage
+from ..nlp.llm import LLModel, LLMMessage
 from ..constants import CLAUDE_API_KEY
 
 
@@ -10,10 +10,15 @@ class LLMClaude(LLModel):
         self._model = "claude-3-haiku-20240307"
         
     def query(self, messages: list[LLMMessage]):
+        msgs = [{
+            'role': m.role,
+            'content': m.content
+        } for m in messages]
+        
         message = self._client.messages.create(
             model=self._model,
             max_tokens=self._max_tokens,
-            messages=messages
+            messages=msgs
         )
-        
-        return message.content
+        print(message.content)
+        return message.content[0].text
