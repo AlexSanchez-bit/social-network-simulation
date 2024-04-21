@@ -11,6 +11,20 @@ def build_topics_relevances(main_topics: list[TopicRelevance]):
     # calculate the embedding representation of each one
     ai_topics = embed([t.topic for t in main_topics])
     
+    eq_topics = []
+    for ait in ai_topics:
+        eq_id = None
+        eq = None
+        sim = -2
+        for i, t in enumerate(all_topics):
+            cdist = cosine_distance(ait['embedding'], t['embedding'])
+            if eq is None or sim < cdist:
+                eq, eq_id, sim = t['topic'], i, cdist
+        eq_topics.append({
+            'id': eq_id,
+            'name': eq
+        }) 
+    
     # relevance of each topic on the network
     relevance = [] 
     for t in all_topics:
@@ -22,4 +36,4 @@ def build_topics_relevances(main_topics: list[TopicRelevance]):
             )
         relevance.append(rel / m)
     
-    return relevance
+    return np.array(eq_topics), np.array(relevance)
