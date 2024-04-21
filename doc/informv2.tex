@@ -45,7 +45,9 @@
 %% for your publication.
 %%
 %%
+
 \documentclass[acmtog]{acmart}
+
 
 %%
 %% \BibTeX command to typeset BibTeX logo in the docs
@@ -243,26 +245,12 @@ que pertenezcan al rango $[0, 1]$.
 \\
 Por ende, una buena forma de enfrentar el problema es usando metaheurísticas para encontrar a la función objetivo $f$ un óptimo que se aproxime a la solución real. Como metaheurística usamos \textbf{Particles Swarm Optimization (PSO)}, que nos permite tener un enfoque multiagente para explorar el espacio de las soluciones y una implementación sencilla 
 
-% TODO: Cambiar esta justificación de xq usamos enjambre de partículas
+\section{Algunas ideas que no se llegaron a implementar}
+La posibilidad de que los agentes falseen sus opiniones como pasa a menudo en internet fue una de las posibilidades que no implementamos dada su complejidad . Agregar mas acciones posibles a los agentes , teniamos la idea de permitir comentarios (positivos y negativos) asi como mensajes los cuales podriamos llevar a lenguaje natural usando el LLM , por temas de tiempo y complejidad no llevamos esta idea a cabo. Agregar mas control sobre la simulacion por parte del usuario , con una buena descripcion de la red se podrian extraer mas parámetros para la simulación , como serían la extroversión de los agentes de la red , la posibilidad de simular varias redes con distintas distribuciones de agentes , controlar la forma en que se generan las relaciones de los agentesasi como generar grupos de fanaticos o excepticos en la red , como se genera la topología de la red también sería un aspecto interesante a agregar. Respecto al análisis de los datos , se podría agregar un análisis de los grupos sociales que se crean depués de cada simulación para analizar como se agrupan loss usuarios de la red
 
+\section{Conclusiones}
+Con este trabajo se llegan a conclusiones sobre la forma es que se crean y conectan las opiniones en internet , en un entorno de red social muy simplificado . Podemos llegar a análisis interesantes sobre como se comporta la influencia social para los usuarios de una red a través de la modelación e interacción de usuarios de distintos tipos y como se influencian entre ellos . Se puede analizar como las estrategias de marketing se pueden optimizar a través de un conocimiento muy general del público objetivo y el ambiente donde se lanzará la campaña
 
-
-\section{Tablas de resultados experimentales}
-
-\begin{figure}
-    \centering
-    \includegraphics[width=1\linewidth]{Screenshot 2024-04-19 012502.png}
-    \caption{Resultados por publicación}
-    
-\end{figure}
-
-\begin{figure}
-    \centering
-    \includegraphics[width=1\linewidth]{Screenshot 2024-04-21 035744.png}
-    \caption{Resultados por tema}
-    \label{fig:enter-label}
-\end{figure}
-
-
+\section{Algunos resultados experimentales}
 \end{document}
 \endinput
