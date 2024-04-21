@@ -25,7 +25,6 @@ def process_input(prompt:str, words=50):
     st.write(number_agent)
     st.write(user_goals)
     st.write(user_topics)
-    st.write(topics_relevance)  
     
     # tienes que pasarle un array con los indices que interesan y el otro con los pesos
     run_simulations(
