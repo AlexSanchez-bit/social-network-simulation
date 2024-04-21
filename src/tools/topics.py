@@ -23,12 +23,3 @@ def build_topics_relevances(main_topics: list[TopicRelevance]):
         relevance.append(rel / m)
     
     return relevance
-
-
-def topics_similary_matrix():
-    embeddings = np.array([x['embedding'] for x in load_topics_embeddings()])
-    sim = len(embeddings) * [[]]
-    for i, t in enumerate(embeddings):
-        for tt in embeddings:
-            sim[i].append(cosine_distance(t, tt))
-    return sim
