@@ -108,21 +108,18 @@ def stadistics_per_characteristic(
     plt.show()
     
 def user_opinions(M,all_characteristics,characteristics):
-    # Calcular las medias de las columnas de la matriz M
-    medias_columnas = np.mean(M, axis=0)
-
-    # Obtener las dimensiones de la matriz
-    n, m = M.shape
-
     # Crear una nueva figura para las gráficas
     plt.figure(figsize=(10, 5))
-
+    n,m = M.shape 
     # Iterar sobre las columnas de la matriz
-    for j in characteristics:
-        plt.plot(range(1, n+1), M[:, j], label=f' {all_characteristics[j]} ')  # Graficar la columna j vs los índices de fila
+    for i in range(n):
+        mean_values=[]
+        for j in characteristics:
+            mean_values.append(M[i,j])
+        plt.plot(range(len(characteristics)),mean_values, label=f'avance de las opiniones en la iteracion{i} ')  # Graficar la columna j vs los índices de fila
 
     # Configurar las etiquetas de los ejes y el título
-    plt.xlabel('Agente (i)')
+    plt.xlabel(f"Características: {','.join(all_characteristics[x] for x in characteristics )}")
     plt.ylabel('Relevancia de la Característica')
     plt.title('opinión de los agentes respecto a las características')
 
@@ -132,5 +129,3 @@ def user_opinions(M,all_characteristics,characteristics):
     # Mostrar la gráfica
     plt.show()
 
-    # Devolver las medias de las columnas
-    return medias_columnas
