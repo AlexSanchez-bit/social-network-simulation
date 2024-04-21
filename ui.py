@@ -3,7 +3,7 @@ import streamlit as st
 from src.tools.llm_claude import LLMClaude
 from src.tools.llm_openai import LLMOpenAI
 from src.tools.prompts import extract_number_agents, extract_topics, extract_user_goals
-from src.tools.topics import topics_similary_matrix, build_topics_relevances
+from src.tools.topics import build_topics_relevances
 
 st.title('Metrics in your Community')
 st.subheader("Learn to grow more in your network")
