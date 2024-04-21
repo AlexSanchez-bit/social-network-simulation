@@ -2,13 +2,6 @@ from mesa import Agent, Model
 from mesa.time import RandomActivation
 import numpy as np
 
-characteristics = [
-    "technology-themed",
-    "has-picture",
-    "has-video",
-    "funny-themed",
-    "serious-theme",
-]
 
 posts = []
 
@@ -308,16 +301,19 @@ class SocialAgent(Agent):
 
 
 class SocialModel(Model):
-    def __init__(self, N):
+    def __init__(self, N,characteristics,users_relation=0.5,like_prob_mean=0.5,share_prob_mean=0.5,others_impact_mean=0.6,affinity_means=None):
         super().__init__()
         self.num_agents = N
         self.schedule = RandomActivation(self)
+        
+        if affinity_means is None:
+            affinity_means = [0.5 for characteristic in characteristics]
 
         # creando los agentes
         for i in range(self.num_agents):
+            affinity_beliefs = np.clip(np.random.normal(loc=affinity_means, scale=0.1, size=len(affinity_means)),-1,1)
             # relaciones aleatrias con los usuarios de la red
-            affinity_beliefs = np.random.normal(loc=0.5, scale=0.1, size=len(posts[0]["features"]))
-            trust = np.random.normal(loc=0.5, scale=0.1, size=np.random.randint(N))
+            trust = np.clip(np.random.normal(loc=users_relation, scale=0.1, size=np.random.randint(N)),-1,1)
             trust_beliefs = {}
             for i, a in enumerate(trust):
                 trust_beliefs[i] = a
@@ -326,11 +322,11 @@ class SocialModel(Model):
                     self,
                     affinity_beliefs=affinity_beliefs,
                     trust_beliefs=trust_beliefs,
-                    like_probability=                np.clip(np.random.normal(loc=0.5,scale=0.1),0,1),
-                    share_probability=np.clip(np.random.normal(loc=0.5,scale=0.1),0,1),
+                    like_probability=np.clip(np.random.normal(loc=like_prob_mean,scale=0.1),0,1),
+                    share_probability=np.clip(np.random.normal(loc=share_prob_mean,scale=0.1),0,1),
                     afinity_weight=np.clip(np.random.normal(loc=0.5,scale=0.1),0,1),
                     relevance_weight=np.clip(np.random.normal(loc=0.5,scale=0.1),0,1),
-                    others_impact=np.clip(np.random.normal(loc=0.5,scale=0.1),0,1),
+                    others_impact=np.clip(np.random.normal(loc=others_impact_mean,scale=0.1),0,1),
                     friend_definition=np.clip(np.random.normal(loc=0.5,scale=0.1),0,1),
                     curiosity=np.clip(np.random.normal(loc=0.5,scale=0.1),0,1),
                     extroversion=np.clip(np.random.normal(loc=0.5,scale=0.1),0,1),

@@ -4,6 +4,8 @@ from src.tools.llm_claude import  LLMClaude
 from src.tools.prompts import extract_number_agents, extract_topics, extract_user_goals
 from src.tools.topics import topics_similary_matrix, build_topics_relevances
 
+from src.simulation import run_simulations
+
 st.title('Metrics in your Community')
 st.subheader("Learn to grow more in your network")
 
@@ -22,6 +24,15 @@ def process_input(prompt:str, words=50):
     st.write(user_goals)
     st.write(user_topics)
     st.write(topics_relevance)  
+    
+    # tienes que pasarle un array con los indices que interesan y el otro con los pesos
+    run_simulations(
+        number_agents=number_agent,
+        number_posts=1000,
+        simulations_count=10,
+        selectes_characteristics=user_topics,
+        postgen_mean=topics_relevance,
+        user_afinity_means=topics_relevance)
 
 
 prompt = st.text_area(label="Describe your community, the number of people, what topics they talk about and what type of reach you want in your network.", height=200)
