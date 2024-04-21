@@ -1,5 +1,5 @@
 import streamlit as st
-
+import numpy as np
 from src.tools.llm_claude import LLMClaude
 from src.tools.llm_openai import LLMOpenAI
 from src.tools.prompts import extract_number_agents, extract_topics, extract_user_goals
@@ -20,18 +20,19 @@ def process_input(prompt:str, words=50):
     number_agent = extract_number_agents(prompt, llm=llm)
     user_goals = extract_user_goals(prompt, llm=llm)
     user_topics = extract_topics(prompt, llm=llm)
-    topics_relevance = build_topics_relevances(user_topics)
+    eq_topics, topics_relevance = build_topics_relevances(user_topics)
 
-    st.write(number_agent)
-    st.write(user_goals)
-    st.write(user_topics)
+    st.write(f"Number of people: {number_agent}")
+    st.write(f"User goals: {user_goals}")
+    st.write(f"SN Topics: {user_topics}")
+    st.write(f"Own similar SN Topics: {[t['name'] for t in eq_topics]}")
     
     # tienes que pasarle un array con los indices que interesan y el otro con los pesos
     run_simulations(
         number_agents=number_agent,
         number_posts=1000,
         simulations_count=10,
-        selectes_characteristics=user_topics,
+        selectes_characteristics=np.array([t['id'] for t in eq_topics]),
         postgen_mean=topics_relevance,
         user_afinity_means=topics_relevance)
 
