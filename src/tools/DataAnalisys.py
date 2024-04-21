@@ -35,13 +35,12 @@ def show_data_analisis(posts, usuarios_red_social, total_shares):
 
 
 def stadistics_per_characteristic(
-    posts, users_in_network, characteristics, total_likes, total_dislikes, total_shares
+    posts, users_in_network,all_characteristics, characteristics, total_likes, total_dislikes, total_shares
 ):
     # Número de características
-    num_caracteristicas = 3
     individual_scores = []
 
-    for characteristic_index in range(0, len(characteristics)):
+    for characteristic_index in characteristics:
         likes_sum = 0
         dislikes_sum = 0
         shared_sum = 0
@@ -70,7 +69,7 @@ def stadistics_per_characteristic(
     for i, ax in enumerate(axs):
         # Ángulos para cada característica
         angulos = np.linspace(
-            0, 2 * np.pi, num_caracteristicas, endpoint=False
+            0, 2 * np.pi, 3, endpoint=False
         ).tolist()
 
         # Agregar el primer ángulo al final para cerrar el polígono
@@ -100,7 +99,7 @@ def stadistics_per_characteristic(
         ax.set_ylim(0, 1)
 
         # Añadir un título
-        ax.set_title(f"Crecimiento de {characteristics[i]}")
+        ax.set_title(f"Crecimiento de {all_characteristics[characteristics[i]]}")
 
     # Ajustar el diseño para evitar superposiciones
     plt.tight_layout()
@@ -108,7 +107,7 @@ def stadistics_per_characteristic(
     # Mostrar la gráfica
     plt.show()
     
-def user_opinions(M,characteristics):
+def user_opinions(M,all_characteristics,characteristics):
     # Calcular las medias de las columnas de la matriz M
     medias_columnas = np.mean(M, axis=0)
 
@@ -119,8 +118,8 @@ def user_opinions(M,characteristics):
     plt.figure(figsize=(10, 5))
 
     # Iterar sobre las columnas de la matriz
-    for j in range(m):
-        plt.plot(range(1, n+1), M[:, j], label=f' {characteristics[j]}')  # Graficar la columna j vs los índices de fila
+    for j in characteristics:
+        plt.plot(range(1, n+1), M[:, j], label=f' {all_characteristics[j]} ')  # Graficar la columna j vs los índices de fila
 
     # Configurar las etiquetas de los ejes y el título
     plt.xlabel('Agente (i)')

@@ -11,6 +11,7 @@ openai = "*"
 python-dotenv = "*"
 matplotlib = "*"
 scikit-learn = "*"
+streamlit = "*"
 
 [dev-packages]
 
