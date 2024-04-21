@@ -14,11 +14,13 @@ from src.tools.load_characteristics import load_characteristics
 
 import sys
 
-
+characteristics =None
 def run_simulations(number_agents=10,number_posts=100,simulations_count=1,selectes_characteristics=[0,1,2,3,4,5],postgen_mean=None,user_afinity_means=None):
     global performed_an_action
+    global characteristics
     #loading characteristics from topic file
-    characteristics = load_characteristics()
+    if characteristics is None:
+        characteristics = load_characteristics()[:50]
     #setting up the logs on a file 
     log_file = open('../logs.txt','w')
     sys.stdout=log_file
