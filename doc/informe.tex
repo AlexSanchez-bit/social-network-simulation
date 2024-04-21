@@ -50,6 +50,53 @@ Para modelar este sistema de agentes usaremos una \textbf{arquitectura multiagen
 arquitectura \textbf{Believes-Desires-Intentions(BDI)}
 
 
+\section{Procesamiento del Lenguage Natural (NLP)}
+
+El flujo de simulación empieza por pedirle al usuario algunos datos relacionados al estado de la red social que él desea simular y que objetivos tiene con la simulación.
+Dichos datos están conformados la cantidad de personas en la red social, una \textbf{descripción} de la red social a simular, de donde se extraerán los tos temas más 
+relevantes que se mencionan comúnmente y los objetivos que tiene  el usuario con la simulación.
+\\
+Para esto se usará el procesamiento del lenguage natural, en donde el usuario introducirá un texto mencionando cuantos usuarios tendrá la red, una breve descripción de los
+temas que se tratan en la misma y una explicación de sus objetivos con la simulación.
+\\
+Luego de tener el texto usaremos uno \textbf{Large Language Model (LLM)} para extraer la información necesaria del input del usuario.
+Para realizar una extracción más detallada, se realizaron 3 consultas al LLM: 
+
+\begin{itemize}
+    \item Una primera consulta en donde simplemente el LLM extrae la cantidad de personas que habrán en la red social.
+    \item Una segunda consulta en donde el LLM analiza el texto y extrae los temas más relevantes que se ven en la red social y que le asigne a cada tema un número indicando el porcentaje de personas que les intereca comúnmente ese tema.
+    \item Y una tercera consulta en donde el LLM analiza el texto y extrae, basado en los objetivos que expresa el usuario, tres números que representan qué tan importante son los \textbf{likes}, \textbf{dislikes} y \textbf{shares} en la simulación para lograr los objetivos del usuario.
+\end{itemize}
+
+Para obtener correctamente los datos del texto del usuario se exigió que el \textit{prompt} tenga al menos $100$ palabras para que sea lo suficientemente expresivo, además de usar algunas técnicas de \textbf{Prompt Engineering} como darle un rol al modelo, especificarle un formato específico para
+la salida y realizar consultas con tareas simples y directas.
+
+\subsection{Importancia de los temas en la red}
+
+Una vez se extraen los datos usando el LLM, tocaría llevar los temas proporcionados por el modelo al conjunto de temas que tenemos preestablecidos. Para esto vamos usar la representación en \textbf{embeddings} de cada tema (incluido los proporcionados lor el LLM),
+así podemos hacer una una comparación semántica de cómo de relacionados están dos temas usando la \textit{distancia coseno}.
+\\
+Supongamos que tenemos $n$ temas preestablecidos en nuestra red social, nuestro objetivo es construir un vector $v$ de $n$ elementos donde $v_i \in [0,1]$ representa que tan relevante es el tema $i$ en la red social. Sea $m$ la cantidad de temas devueltos por el LLM y $p_i$ la importancia dada a cada una en la red.
+Si tenemos los embeddings de cada grupo de temas(sean $a$ y $b$ respectivamente), entonces la para calcular la relevancia $v_i$ del tema $i$ en la red social basado en los $m$ temas principales devueltos por el LLM podemos calcularlo como:
+
+$$
+v_i = \frac{\sum_{j=1}^{m} p_j sim(a_i, b_j)}{n},  \forall 1 \leq i \leq n   
+$$
+
+donde $sim(a_i, b_j)$ es la similitud entre los temas $i$ y $j$ usando los embeddings de cada uno.
+\\
+Esta suma ponderada de la similitud de los temas devuelto por el LLM multiplicados por la importancia que tiene cada una en la red social, nos da una medida aproximada de la relevancia del tema $i$ en la red social.
+
+\subsection{Representación del conocimiento}
+
+En la simulación, una de las formas de interactuar el agente con el ambiente es mediante la publicación de nuevos posts. Estos posts son generados aleatoriamente basándonos en los \textbf{believes}, \textbf{desires} e \textbf{intentions} del agente. Esto aunque puede funcionar, una forma más realista de hacer que el usuario
+cree una publicación coherente es mediante una base de conocimiento. Si un agente tubiera acceso a una base de conocimiento en donde, el agente teniendo varios temas de interés puediera seleccionar otros temas acordes a los q él quiere para la publación con un nivel de importancia para cada tema, entonces el usuario será capaz 
+de poder crear publicaciones más abarcadoras en cuantos a temas se refiere, pero sin salirse de los tópicos generales, ya que estaríamos escogiendo otros temas semejantes a los que él ya tiene.
+\\
+Para esto podemos usar como nuestra "base de conocimiento" a la matriz de de correlación de los embeddings de los temas. Mas formalmente sería, tener una matriz $M_{n \times n}$ donde $M_{ij} = sim(v_i, v_j) = \alpha, 1 \leq \alpha \leq 1$ indica la semejanza del tema $i$ con el tema $j$. Con esta matriz de correlación es fácil buscar
+una un tema, los temas más semejantes a él, y usando el mismo índice de similitud se puede calcular el el nivel de importancia de este nuevo tema en el post.
+
+
 \section{Optimización}
 
 Una vez la simulación arroge las estadísticas antes mensionadas, ahora tenemos la interrogante de encontrar \textit{¿qué combinación de temas y en qué cantidad proporciona un mejor alcance en la red?}.
@@ -84,42 +131,42 @@ la que es buena para optimizar funciones.
 
 \subsection{Función de optimización}
 
-En la simulacion existen $n$ características que describen los diferentes temas de los que puede tratar un post. Cada post en la red social tiene un vector $v$ de $n$ dimensiones con valores $v_i \in [0, 1]$ que indica que tan relevante es el tema $i$ en el post.
-También, de la simulación se extrae para cada característica, tres indicadores importantes(Likes, dislikes y veces compartida). Por tanto, podemos crear una matrix $C{n,3}$ donde $C_{i,j}$ indica que porcentaje de la red tuvo la reacción $j$ en posts donde el tema $i$ es relevante.
-\\
-El objectivo es entonces encontrar el vector $v$ tal que tenga la mejor combinación de relevancias por cada característica y nos dé el mayor crecimiento en la red. Como el impacto de una post de un tema $i$ se mide por los 3 índices expuestos anteriormente (`likes`, `dislikes`, `shared`), 
-entonces necesitamos un valor que indique cuan relevante es este índice para un post. Sea $\alpha, \beta, \lambda \in [-1, 1]$ los respectivos indices de relevancia, en donde $-1$ afecta muy negativamente al post y $1$ afecta muy positivamente al post.
-Por otro lado para medir el impacto de una publicación en la red esta se podría calcular como:
+% En la simulacion existen $n$ características que describen los diferentes temas de los que puede tratar un post. Cada post en la red social tiene un vector $v$ de $n$ dimensiones con valores $v_i \in [0, 1]$ que indica que tan relevante es el tema $i$ en el post.
+% También, de la simulación se extrae para cada característica, tres indicadores importantes(Likes, dislikes y veces compartida). Por tanto, podemos crear una matrix $C{n,3}$ donde $C_{i,j}$ indica que porcentaje de la red tuvo la reacción $j$ en posts donde el tema $i$ es relevante.
+% \\
+% El objectivo es entonces encontrar el vector $v$ tal que tenga la mejor combinación de relevancias por cada característica y nos dé el mayor crecimiento en la red. Como el impacto de una post de un tema $i$ se mide por los 3 índices expuestos anteriormente (`likes`, `dislikes`, `shared`), 
+% entonces necesitamos un valor que indique cuan relevante es este índice para un post. Sea $\alpha, \beta, \lambda \in [-1, 1]$ los respectivos indices de relevancia, en donde $-1$ afecta muy negativamente al post y $1$ afecta muy positivamente al post.
+% Por otro lado para medir el impacto de una publicación en la red esta se podría calcular como:
 
-$$
-I(v) = \alpha g_1(v) + \beta g_2(v) + \lambda g_3(v)
-$$
+% $$
+% I(v) = \alpha g_1(v) + \beta g_2(v) + \lambda g_3(v)
+% $$
 
-donde $g_1(v), g_1(v)$ y $g_1(v)$ indican cuanto afectan los indices de crecimiento respectivamente entre todos los temas.
+% donde $g_1(v), g_1(v)$ y $g_1(v)$ indican cuanto afectan los indices de crecimiento respectivamente entre todos los temas.
 
-La forma de calcular las 3 funciones son la misma, solo que se separan en funciones diferentes para mejor comprensión. Para esto hacemos uso de la función exponencial para recompenzar las a los valores mas grandes de $x$. Entonces podemos definir la función $g_1(v)$ que indica cuanto ... como:
+% La forma de calcular las 3 funciones son la misma, solo que se separan en funciones diferentes para mejor comprensión. Para esto hacemos uso de la función exponencial para recompenzar las a los valores mas grandes de $x$. Entonces podemos definir la función $g_1(v)$ que indica cuanto ... como:
 
-$$
-g_1(v) = v_1 \alpha e ^ {\sum_{i=1}^{n} C_{i,1}} 
-$$
+% $$
+% g_1(v) = v_1 \alpha e ^ {\sum_{i=1}^{n} C_{i,1}} 
+% $$
 
-Entonces la función en su totalidad la podemos expresar como:
+% Entonces la función en su totalidad la podemos expresar como:
 
-$$
-I(v) = \alpha g_1(v) + \beta g_2(v) + \lambda g_3(v) = v_1 \alpha e ^ {\sum_{i=1}^{n} C_{i,1}} + v_2 \beta e ^ {\sum_{i=1}^{n} C_{i,2}} + v_3 \lambda e ^ {\sum_{i=1}^{n} C_{i,3}}
-$$
+% $$
+% I(v) = \alpha g_1(v) + \beta g_2(v) + \lambda g_3(v) = v_1 \alpha e ^ {\sum_{i=1}^{n} C_{i,1}} + v_2 \beta e ^ {\sum_{i=1}^{n} C_{i,2}} + v_3 \lambda e ^ {\sum_{i=1}^{n} C_{i,3}}
+% $$
 
-Si definimos el vector $z = [\alpha, \beta, \lambda]$ entonces la función quedaría:
+% Si definimos el vector $z = [\alpha, \beta, \lambda]$ entonces la función quedaría:
 
-$$
-I(v) = \sum_{j=1}^{3} z_j v_i  e ^ {\sum_{i=1}^{n} C_{i,j}}
-$$
+% $$
+% I(v) = \sum_{j=1}^{3} z_j v_i  e ^ {\sum_{i=1}^{n} C_{i,j}}
+% $$
 
-Ahora bien, como queremos hallar el vector $x$ tal que maximize el impacto en la red entonces tenemos que optimizar la funcion $I$ para calcular el máximo:
+% Ahora bien, como queremos hallar el vector $x$ tal que maximize el impacto en la red entonces tenemos que optimizar la funcion $I$ para calcular el máximo:
 
-$$
-\max I(v) = \max \sum_{j=1}^{3} z_j v_i e ^ {\sum_{i=1}^{n} C_{i,j}}
-$$
+% $$
+% \max I(v) = \max \sum_{j=1}^{3} z_j v_i e ^ {\sum_{i=1}^{n} C_{i,j}}
+% $$
 
 
 
