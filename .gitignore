@@ -1,3 +1,4 @@
 .env
+models.json
 logs.txt
 /__pycache__
