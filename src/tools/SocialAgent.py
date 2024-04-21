@@ -294,7 +294,7 @@ class SocialAgent(Agent):
                     u_id = action[3]
                     posts[pid]["shared"] += 1
                     print(
-                        f"\t\tcompartiendo el post {pid} a {u_id} {weight} {self.beliefs['share_probability']}"
+                        f"\t\tcompartiendo el post {pid} a {u_id}"
                     )
                     self.model.schedule.agents[u_id].react_to_post(pid, self.id)
                     total_shares += 1
@@ -307,7 +307,7 @@ class SocialModel(Model):
         self.schedule = RandomActivation(self)
         
         if affinity_means is None:
-            affinity_means = [0.5 for characteristic in characteristics]
+            affinity_means = [0 for characteristic in characteristics]
 
         # creando los agentes
         for i in range(self.num_agents):

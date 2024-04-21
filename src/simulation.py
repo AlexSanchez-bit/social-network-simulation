@@ -20,15 +20,15 @@ def run_simulations(number_agents=10,number_posts=100,simulations_count=1,select
     global characteristics
     #loading characteristics from topic file
     if characteristics is None:
-        characteristics = load_characteristics()[:50]
+        characteristics = load_characteristics()
     #setting up the logs on a file 
-    log_file = open('../logs.txt','w')
+    log_file = open('logs.txt','w')
     sys.stdout=log_file
     
     if postgen_mean is None:
         postgen_mean = [0.5 for _ in characteristics]
     if user_afinity_means is None:
-        user_afinity_means= [0.5 for _ in characteristics]
+        user_afinity_means= [0 for _ in characteristics]
     
     #the number of agents on the simulation
     N = number_agents
@@ -42,6 +42,7 @@ def run_simulations(number_agents=10,number_posts=100,simulations_count=1,select
 
     #array for the time in which the agents lost interest on the posts
     atention_time = []
+    collected_opinions=[]
 
     for i in range(0, simulations_count):
         # generate more posts
@@ -75,6 +76,10 @@ def run_simulations(number_agents=10,number_posts=100,simulations_count=1,select
         history.append(posts)
         performed_an_action = True
         atention_time.append(horas)
+        current_opinions=np.array([agent.beliefs['affinity'] for agent in  model.schedule.agents])
+        opinions_means = np.mean(current_opinions, axis=1)
+        collected_opinions.append(opinions_means)
+
 
     total_shares = 0
     total_likes = 0
@@ -90,6 +95,5 @@ def run_simulations(number_agents=10,number_posts=100,simulations_count=1,select
     stadistics_per_characteristic(
         posts, N, characteristics,selectes_characteristics, total_likes, total_dislikes, total_shares
     )
-    collected_opinions =np.array([agent.beliefs['affinity'] for agent in  model.schedule.agents])
-    user_opinions(collected_opinions,characteristics,selectes_characteristics)
-    print('tiempo medio en que estuvieron vivos los posts: ',np.mean(np.array(atention_time)))
+    user_opinions(np.array(collected_opinions),characteristics,selectes_characteristics)
+    print('tiempo medio en que estuvieron vivos los posts: ',np.mean(np.array(atention_time)),collected_opinions.shape)
