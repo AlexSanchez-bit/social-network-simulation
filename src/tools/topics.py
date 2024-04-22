@@ -12,6 +12,7 @@ def build_topics_relevances(main_topics: list[TopicRelevance]):
     ai_topics = embed([t.topic for t in main_topics])
     
     eq_topics = []
+    uniques = set()
     for ait in ai_topics:
         eq_id = None
         eq = None
@@ -20,10 +21,13 @@ def build_topics_relevances(main_topics: list[TopicRelevance]):
             cdist = cosine_distance(ait['embedding'], t['embedding'])
             if eq is None or sim < cdist:
                 eq, eq_id, sim = t['topic'], i, cdist
-        eq_topics.append({
-            'id': eq_id,
-            'name': eq
-        }) 
+        
+        if(eq_id not in uniques):
+            uniques.add(eq_id)
+            eq_topics.append({
+                'id': eq_id,
+                'name': eq
+            }) 
     
     # relevance of each topic on the network
     relevance = [] 
