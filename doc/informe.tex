@@ -218,8 +218,8 @@ Con los embeddings calculados , podemos crear una base de conocimiento sobre los
 
 \section{Optimización}
 
-Una vez la simulación arroge las estadísticas antes mensionadas, ahora tenemos la interrogante de encontrar \textit{¿qué combinación de temas y en qué cantidad proporciona un mejor alcance en la red?}.
-Esta interrogante tiene a dos pasos importantes; primero es ¿cómo calificas que una publición proporciona mayor alcance?¿bajo que criterio es interesante realizar una búsqueda de la mejor solución? y
+Una vez la simulación arroge las estadísticas antes mencionadas, ahora tenemos la interrogante de encontrar \textit{¿qué combinación de temas y en qué cantidad proporciona un mejor alcance en la red?}.
+Esta interrogante tiene dos pasos importantes; primero, ¿cómo calificas que una publición proporciona mayor alcance?¿bajo que criterio es interesante realizar una búsqueda de la mejor solución? y
 en segundo lugar tenemos el problema de \textit{¿Cómo vamos a encontrar dicha solución óptima?}
 
 \subsection{Criterios de optimalidad}
@@ -228,69 +228,65 @@ Para responder la primera pregunta, podemos ver que cada post en la red social s
 la simulación nos proporciona esas mismas estadísticas enfocándonos esta vez en el tipo de tema, por tanto tendríamos un índice de que tanto gusta cada tema entre los usuarios (cantidad de likes promedio),
 o cual es el tema que menos gustó (cantidad de dislikes promedio), o incluso cuáles son los temas que más se difundieron, ya sea por gustos o disgustos, en la red(cantidad de veces compartida). Entonces depende
 de los intereses del tengamos podemos decidir que importancia darle a cada una de esas tres estadísticas.
-\\
-Para esto lo más interesantes es que, en vez de tener que definir numéricamente que tanto nos interesa una estadística más que otra, definamos en lenguaje natural cuales son nuestras intensiones respecto al tipo 
-de alcance que queremos obtener y de ahí, usando un \textbf{LLM} extraer los índices numéricos que más relación tenga con nuestra descripción.
 
 
 \subsection{Encontrar la mejor solución}
 
-Para la segunda pregunda de \textit{¿cómo encontrar la mejor solución?}, debemos fijarnos que la solión consiste en un vector $x$ de tamaño $n$, donde cada componente del vector es un número $x_i \in [0,1]$ que
-indica que el tema $i$ debe tener una relevancia $x_i$ en el post para que tenga el mayor alcanze.
+Para la segunda pregunda \textit{¿cómo encontrar la mejor solución?}, debemos fijarnos que la solución consiste en un vector $x$ de tamaño $n$, donde cada componente del vector es un número $x_i \in [0,1]$ que
+indica que el tema $i$ debe tener una relevancia $x_i$ en el post para que tenga el mayor alcance.
 \\
 Para saber si una solución es mejor que otra debemos tener una forma de cuantificar dicha mejora y así poder hacer la comparación. Para esto definimos una función $f: D \rightarrow \mathbb{R}$, donde $D$ es
 el dominio de todas las soluciones posibles del problema, o sea, todas las formas posibles en las que se puede construir un post, y $f(x) \in \mathbb{R}$ un número que indica que tan buena es la solución. 
-Podemos ver que $D$ es de tamaño infinito, ya que una solución consiste en una distribución de $n$ números entre $0$ y $1$, y como ese conjunto es no enumerable entonces hay infinitas combinaciones de $n$ numeros
+Podemos ver que $D$ es de tamaño infinito, ya que una solución consiste en una distribución de $n$ números entre $0$ y $1$, y como este conjunto es no enumerable entonces hay infinitas combinaciones de $n$ números
 que pertenezcan al rango $[0, 1]$.
 \\
-Por ende, una buena forma de enfrentar el problema es usando metaheurísticas para encontrar a la función objetivo $f$ un óptimo que se aproxime a la solución real. Como metaheurística usamos \textbf{Particles Swarm Optimization (PSO)}, que nos permite tener un enfoque multiagente para explorar el espacio de las soluciones y una implementación sencilla 
-
+Por ende, una buena forma de enfrentar el problema es usando metaheurísticas para encontrar a la función objetivo $f$ un óptimo que se aproxime a la solución real. Como metaheurística usamos \textbf{Particles Swarm Optimization (PSO)}, que nos permite tener un enfoque multiagente para explorar el espacio de las soluciones y una implementación sencilla.
 
 \subsection{Función de optimización}
 
-% En la simulacion existen $n$ características que describen los diferentes temas de los que puede tratar un post. Cada post en la red social tiene un vector $v$ de $n$ dimensiones con valores $v_i \in [0, 1]$ que indica que tan relevante es el tema $i$ en el post.
-% También, de la simulación se extrae para cada característica, tres indicadores importantes(Likes, dislikes y veces compartida). Por tanto, podemos crear una matrix $C{n,3}$ donde $C_{i,j}$ indica que porcentaje de la red tuvo la reacción $j$ en posts donde el tema $i$ es relevante.
-% \\
-% El objectivo es entonces encontrar el vector $v$ tal que tenga la mejor combinación de relevancias por cada característica y nos dé el mayor crecimiento en la red. Como el impacto de una post de un tema $i$ se mide por los 3 índices expuestos anteriormente (`likes`, `dislikes`, `shared`), 
-% entonces necesitamos un valor que indique cuan relevante es este índice para un post. Sea $\alpha, \beta, \lambda \in [-1, 1]$ los respectivos indices de relevancia, en donde $-1$ afecta muy negativamente al post y $1$ afecta muy positivamente al post.
-% Por otro lado para medir el impacto de una publicación en la red esta se podría calcular como:
+En la simulación existen $n$ características que describen los diferentes temas de los que puede tratar un post. Cada post en la red social tiene un vector $v$ de $n$ dimensiones con valores $v_i \in [0, 1]$ que indica que tan relevante es el tema $i$ en el post.
+También, de la simulación se extrae para cada característica, tres indicadores importantes(Likes, dislikes y veces compartida). Por tanto, podemos crear una matrix $C{n,3}$ donde $C_{i,j}$ indica que porcentaje de la red tuvo la reacción $j$ en posts donde el tema $i$ es relevante.
+\\
+El objectivo es entonces encontrar el vector $v$ tal que tenga la mejor combinación de relevancias por cada característica y nos dé el mayor crecimiento en la red. Como el impacto de una post de un tema $i$ se mide por los 3 índices expuestos anteriormente (`likes`, `dislikes`, `shares`), 
+entonces necesitamos un valor que indique cuan relevante es este índice para un post. Sea $\alpha, \beta, \lambda \in [-1, 1]$ los respectivos indices de relevancia, en donde $-1$ afecta muy negativamente al post y $1$ afecta muy positivamente al post.
+Por otro lado para medir el impacto de una publicación en la red esta se podría calcular como:
 
-% $$
-% I(v) = \alpha g_1(v) + \beta g_2(v) + \lambda g_3(v)
-% $$
+$$
+I(v) = \alpha g_1(v) + \beta g_2(v) + \lambda g_3(v)
+$$
 
-% donde $g_1(v), g_1(v)$ y $g_1(v)$ indican cuanto afectan los indices de crecimiento respectivamente entre todos los temas.
+donde $g_1(v), g_1(v)$ y $g_1(v)$ indican cuanto afectan los indices de crecimiento respectivamente entre todos los temas.
 
-% La forma de calcular las 3 funciones son la misma, solo que se separan en funciones diferentes para mejor comprensión. Para esto hacemos uso de la función exponencial para recompenzar las a los valores mas grandes de $x$. Entonces podemos definir la función $g_1(v)$ que indica cuanto ... como:
+La forma de calcular las 3 funciones son la misma, solo que se separan en funciones diferentes para mejor comprensión. Para esto hacemos uso de la función exponencial para recompenzar las a los valores mas grandes de $x$. Entonces podemos definir la función $g_1(v)$ que indica cuanto ... como:
 
-% $$
-% g_1(v) = v_1 \alpha e ^ {\sum_{i=1}^{n} C_{i,1}} 
-% $$
+$$
+g_1(v) = v_1 \alpha e ^ {\sum_{i=1}^{n} C_{i,1}} 
+$$
 
-% Entonces la función en su totalidad la podemos expresar como:
+Entonces la función en su totalidad la podemos expresar como:
 
-% $$
-% I(v) = \alpha g_1(v) + \beta g_2(v) + \lambda g_3(v) = v_1 \alpha e ^ {\sum_{i=1}^{n} C_{i,1}} + v_2 \beta e ^ {\sum_{i=1}^{n} C_{i,2}} + v_3 \lambda e ^ {\sum_{i=1}^{n} C_{i,3}}
-% $$
+$$
+I(v) = \alpha g_1(v) + \beta g_2(v) + \lambda g_3(v) = v_1 \alpha e ^ {\sum_{i=1}^{n} C_{i,1}} + v_2 \beta e ^ {\sum_{i=1}^{n} C_{i,2}} + v_3 \lambda e ^ {\sum_{i=1}^{n} C_{i,3}}
+$$
 
-% Si definimos el vector $z = [\alpha, \beta, \lambda]$ entonces la función quedaría:
+Si definimos el vector $z = [\alpha, \beta, \lambda]$ entonces la función quedaría:
 
-% $$
-% I(v) = \sum_{j=1}^{3} z_j v_i  e ^ {\sum_{i=1}^{n} C_{i,j}}
-% $$
+$$
+I(v) = \sum_{j=1}^{3} z_j v_i  e ^ {\sum_{i=1}^{n} C_{i,j}}
+$$
 
-% Ahora bien, como queremos hallar el vector $x$ tal que maximize el impacto en la red entonces tenemos que optimizar la funcion $I$ para calcular el máximo:
+Ahora bien, como queremos hallar el vector $x$ tal que maximize el impacto en la red entonces tenemos que optimizar la funcion $I$ para calcular el máximo:
 
-% $$
-% \max I(v) = \max \sum_{j=1}^{3} z_j v_i e ^ {\sum_{i=1}^{n} C_{i,j}}
-% $$
+$$
+\max I(v) = \max \sum_{j=1}^{3} z_j v_i e ^ {\sum_{i=1}^{n} C_{i,j}}
+$$
 
 
 \section{Algunas ideas que no se llegaron a implementar}
-La posibilidad de que los agentes falseen sus opiniones como pasa a menudo en internet fue una de las posibilidades que no implementamos dada su complejidad . Agregar mas acciones posibles a los agentes , teniamos la idea de permitir comentarios (positivos y negativos) asi como mensajes los cuales podriamos llevar a lenguaje natural usando el LLM , por temas de tiempo y complejidad no llevamos esta idea a cabo. Agregar mas control sobre la simulacion por parte del usuario , con una buena descripcion de la red se podrian extraer mas parámetros para la simulación , como serían la extroversión de los agentes de la red , la posibilidad de simular varias redes con distintas distribuciones de agentes , controlar la forma en que se generan las relaciones de los agentesasi como generar grupos de fanaticos o excepticos en la red , como se genera la topología de la red también sería un aspecto interesante a agregar. Respecto al análisis de los datos , se podría agregar un análisis de los grupos sociales que se crean depués de cada simulación para analizar como se agrupan loss usuarios de la red
+La posibilidad de que los agentes falseen sus opiniones como pasa a menudo en internet fue una de las posibilidades que no implementamos dada su complejidad . Agregar más acciones posibles a los agentes, teníamos la idea de permitir comentarios (positivos y negativos) así como mensajes los cuales podríamos llevar a lenguaje natural usando el LLM, por temas de tiempo y complejidad no llevamos esta idea a cabo. Agregar más control sobre la simulación por parte del usuario, con una buena descripción de la red se podrían extraer más parámetros para la simulación, como serían la extroversión de los agentes de la red, la posibilidad de simular varias redes con distintas distribuciones de agentes, controlar la forma en que se generan las relaciones de los agentes, así como generar grupos de fanáticos o excépticos, como se genera la topología de la red también sería un aspecto interesante a agregar. Respecto al análisis de los datos, se podría agregar un análisis de los grupos sociales que se crean depués de cada simulación para analizar como se agrupan los usuarios de la red
 
 \section{Conclusiones}
-Con este trabajo se llegan a conclusiones sobre la forma es que se crean y conectan las opiniones en internet , en un entorno de red social muy simplificado . Podemos llegar a análisis interesantes sobre como se comporta la influencia social para los usuarios de una red a través de la modelación e interacción de usuarios de distintos tipos y como se influencian entre ellos . Se puede analizar como las estrategias de marketing se pueden optimizar a través de un conocimiento muy general del público objetivo y el ambiente donde se lanzará la campaña
+Con este trabajo se llegan a conclusiones sobre la forma en que se crean y conectan las opiniones en internet, en un entorno de red social muy simplificado. Podemos llegar a análisis interesantes sobre como se comporta la influencia social para los usuarios de una red a través de la modelación e interacción de usuarios de distintos tipos y cómo se influencian entre ellos. Se puede analizar como las estrategias de marketing se pueden optimizar a través de un conocimiento muy general del público objetivo y el ambiente donde se lanzará la campaña.
 
 \section{Algunos resultados experimentales}
 \end{document}
