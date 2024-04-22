@@ -91,9 +91,11 @@ def run_simulations(number_agents=10,number_posts=100,simulations_count=1,select
         total_shares += post["shared"]
     print(total_dislikes, total_likes, total_shares)
 
-    show_data_analisis(posts, N, total_shares)
-    stadistics_per_characteristic(
-        posts, N, characteristics,selectes_characteristics, total_likes, total_dislikes, total_shares
+    print('Tiempo medio en que estuvieron vivos los posts: ',np.mean(np.array(atention_time)), np.array(collected_opinions).shape)
+    return (
+        lambda x=None: show_data_analisis(posts, N, total_shares),
+        lambda x=None: stadistics_per_characteristic(
+            posts, N, characteristics,selectes_characteristics, total_likes, total_dislikes, total_shares
+        ),
+        lambda x=None: user_opinions(np.array(collected_opinions),characteristics,selectes_characteristics)
     )
-    user_opinions(np.array(collected_opinions),characteristics,selectes_characteristics)
-    print('tiempo medio en que estuvieron vivos los posts: ',np.mean(np.array(atention_time)),collected_opinions.shape)
