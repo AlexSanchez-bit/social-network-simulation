@@ -47,7 +47,7 @@
 %%
 
 \documentclass[acmtog]{acmart}
-
+% \usepackage{graphicx}
 
 %%
 %% \BibTeX command to typeset BibTeX logo in the docs
@@ -289,5 +289,39 @@ La posibilidad de que los agentes falseen sus opiniones como pasa a menudo en in
 Con este trabajo se llegan a conclusiones sobre la forma en que se crean y conectan las opiniones en internet, en un entorno de red social muy simplificado. Podemos llegar a análisis interesantes sobre como se comporta la influencia social para los usuarios de una red a través de la modelación e interacción de usuarios de distintos tipos y cómo se influencian entre ellos. Se puede analizar como las estrategias de marketing se pueden optimizar a través de un conocimiento muy general del público objetivo y el ambiente donde se lanzará la campaña.
 
 \section{Algunos resultados experimentales}
+
+Usando el siguiente prompt como entrada para \textit{Claude}:
+
+\begin{quote}
+  \textit{My community in discord has around of 50 people. Here, i share content about programming and software development mainly. Often i share content about artificial intelligence and the people like it so much. Also i make some posts about my career in the software development. Generally, people like AI content much more than personal growth content. I would like to be able to continue creating content in a smarter way to grow my community and reach the greatest number of people possible, and help them in their professional life.}
+\end{quote}
+
+Aquí especificamos que la comunidad es de 50 personas y que a menudo se comparte contenido sobre programación, inteligencia artificial y crecimiento personal. También se mencionan los gustos que tiene la comunidad a estos temas para dar información de que tan relevante es cada tema.
+Por último se menciona los objetivos que se quisieran alcanzar en esa comunidad, en este caso, hacer crecer la comunidad y poder ayudar a las personas.
+\\
+Con este \textit{prompt}, el LLM, mediante las tres consulas que se le hacen para procesar los datos pudo concluir que:
+
+\begin{itemize}
+  \item La \textbf{cantidad de personas} de la comunidad es $50$.
+  \item Temas relevantes: \textbf{Programming} con $0.8$ de relevancia para la comunidad, \textbf{Software Development} con $0.8$, \textbf{Artificial Intelligence} con $0.9$, \textbf{Career in Software Development} con $0.6$, y finalmente \textbf{Personal Growth} con $0.5$.
+  \item Cuantificación de sus objetivos: \textbf{likes} un $0.8$, \textbf{dislikes} un $0.3$ y \textbf{shares} un $0.7$.    
+\end{itemize}
+
+Analizamos ahora cada uno de los puntos anteriores. 
+\\
+Para identificar el tamaño dela comunidad no  hubo problemas ya que estaba bastante explícita.
+\\
+En los temas relevantes nos seleccionó varios pero asignó correctamente los pesos, ya que la comunidad de manera general trata sobre programación, aunque con un gusto un poco más específico por la inteligencia artificial. 
+Ahora bien, estos temas para un mismo prompt varian, por tanto para poder llevar estos temas genéricos a temas epecíficos de nuestro conjunto de datos, se usó la comparación entre \textit{embeddings} y quedándonos con los temas que más
+se asemejan los extraidos. En este caso se indentificaron los temas: \textbf{Game Development}, \textbf{Artificial Intelligence}, \textbf{Career Development}, \textbf{Personal Finance}.
+\\
+Después de realizada la simulación y realizada un análisis estadístico se obtubieron los sugientes datos:
+
+% \begin{figure}[h]
+%   \centering
+%   \includegraphics[width=\linewidth]{an_1-lds.png}
+%   \Description{Indice de likes, dislikes y veces compartida de los posts}
+% \end{figure}
+
 \end{document}
 \endinput
