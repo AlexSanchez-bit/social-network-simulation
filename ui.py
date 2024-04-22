@@ -55,11 +55,11 @@ def process_input(prompt:str, words=50):
     with a3:
         st.pyplot(f3)
     
-    f1 = b()
-    st.pyplot(f1)
+    f4 = b()
+    st.pyplot(f4)
     
-    f1 =c()
-    st.pyplot()
+    f5 = c()
+    st.pyplot(f5)
     
 
 
