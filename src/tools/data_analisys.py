@@ -106,7 +106,7 @@ def user_opinions(M, all_characteristics, characteristics):
     # Crear una nueva figura para las gráficas
     fig, ax = plt.subplots(figsize=(10, 5))
     # Iterar sobre las columnas de la matriz
-    ax.plot(range(len(characteristics)), mean_opinions, label=f'Promedio de opiniones', marker='o')  # Graficar la columna j vs los índices de fila
+    ax.plot(range(len(characteristics)), [mean_opinions[i] for i in characteristics], label=f'Promedio de opiniones', marker='o')  # Graficar la columna j vs los índices de fila
 
     # Configurar las etiquetas de los ejes y el título
     ax.set_xlabel(f"Características: {','.join(all_characteristics[x] for x in characteristics )}")
