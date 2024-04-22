@@ -1,10 +1,10 @@
-from src.tools.SocialAgent import (
+from src.tools.social_agent import (
     SocialModel,
     posts,
     performed_an_action,
 )
 import numpy as np
-from src.tools.DataAnalisys import (
+from src.tools.data_analisys import (
     show_data_analisis,
     stadistics_per_characteristic,
     user_opinions
