@@ -9,29 +9,22 @@ def show_data_analisis(posts, usuarios_red_social, total_shares):
     dislikes_relativos = [len(post["dislikes"])  for post in posts]
     compartidos_relativos = [post["shared"]  for post in posts]
 
-    # Crear una sola ventana con tres gráficas
-    fig, axs = plt.subplots(3)
+    fig1, axs1 = plt.subplots()
+    axs1.bar(range(len(posts)), likes_relativos, color="b")
+    axs1.set_title("Likes Relativos por Post")
+    axs1.set_ylabel("Likes Relativos")
 
-    # Graficar likes relativos
-    axs[0].bar(range(len(posts)), likes_relativos, color="b")
-    axs[0].set_title("Likes Relativos por Post")
-    axs[0].set_ylabel("Likes Relativos")
+    fig2, axs2 = plt.subplots()
+    axs2.bar(range(len(posts)), dislikes_relativos, color="r")
+    axs2.set_title("Dislikes Relativos por Post")
+    axs2.set_ylabel("Dislikes Relativos")
 
-    # Graficar dislikes relativos
-    axs[1].bar(range(len(posts)), dislikes_relativos, color="r")
-    axs[1].set_title("Dislikes Relativos por Post")
-    axs[1].set_ylabel("Dislikes Relativos")
+    fig3, axs3 = plt.subplots()
+    axs3.bar(range(len(posts)), compartidos_relativos, color="g")
+    axs3.set_title("Compartidos Relativos por Post")
+    axs3.set_ylabel("Compartidos Relativos")
 
-    # Graficar compartidos relativos
-    axs[2].bar(range(len(posts)), compartidos_relativos, color="g")
-    axs[2].set_title("Compartidos Relativos por Post")
-    axs[2].set_ylabel("Compartidos Relativos")
-
-    # Ajustar el espacio entre subgráficas para evitar solapamientos
-    plt.tight_layout()
-
-    # Mostrar el gráfico
-    plt.show()
+    return fig1, fig2, fig3
 
 
 def stadistics_per_characteristic(
@@ -91,7 +84,7 @@ def stadistics_per_characteristic(
             [
                 f"likes:{round(scores[0],1)}",
                 f"dislikes: {round(scores[1],1)}",
-                f"veces compartido {round(scores[2],1)}",
+                f"shares {round(scores[2],1)}",
             ]
         )
 
@@ -104,28 +97,25 @@ def stadistics_per_characteristic(
     # Ajustar el diseño para evitar superposiciones
     plt.tight_layout()
 
-    # Mostrar la gráfica
-    plt.show()
+    # Devolver la figura en lugar de mostrarla
+    return fig
     
-def user_opinions(M,all_characteristics,characteristics):
+
+def user_opinions(M, all_characteristics, characteristics):
+    mean_opinions = np.mean(M, axis=0)
     # Crear una nueva figura para las gráficas
-    plt.figure(figsize=(10, 5))
-    n,m = M.shape 
+    fig, ax = plt.subplots(figsize=(10, 5))
     # Iterar sobre las columnas de la matriz
-    for i in range(n):
-        mean_values=[]
-        for j in characteristics:
-            mean_values.append(M[i,j])
-        plt.plot(range(len(characteristics)),mean_values, label=f'avance de las opiniones en la iteracion{i} ')  # Graficar la columna j vs los índices de fila
+    ax.plot(range(len(characteristics)), mean_opinions, label=f'Promedio de opiniones', marker='o')  # Graficar la columna j vs los índices de fila
 
     # Configurar las etiquetas de los ejes y el título
-    plt.xlabel(f"Características: {','.join(all_characteristics[x] for x in characteristics )}")
-    plt.ylabel('Relevancia de la Característica')
-    plt.title('opinión de los agentes respecto a las características')
+    ax.set_xlabel(f"Características: {','.join(all_characteristics[x] for x in characteristics )}")
+    ax.set_ylabel('Relevancia de la Característica')
+    ax.set_title('opinión de los agentes respecto a las características')
 
     # Agregar leyenda
-    plt.legend()
+    ax.legend()
 
-    # Mostrar la gráfica
-    plt.show()
+    # Devolver la figura en lugar de mostrarla
+    return fig
 

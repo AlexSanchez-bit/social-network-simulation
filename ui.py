@@ -1,5 +1,5 @@
 import streamlit as st
-
+import numpy as np
 from src.tools.llm_claude import LLMClaude
 from src.tools.llm_openai import LLMOpenAI
 from src.tools.prompts import extract_number_agents, extract_topics, extract_user_goals
@@ -20,20 +20,47 @@ def process_input(prompt:str, words=50):
     number_agent = extract_number_agents(prompt, llm=llm)
     user_goals = extract_user_goals(prompt, llm=llm)
     user_topics = extract_topics(prompt, llm=llm)
-    topics_relevance = build_topics_relevances(user_topics)
+    eq_topics, topics_relevance = build_topics_relevances(user_topics)
 
-    st.write(number_agent)
-    st.write(user_goals)
-    st.write(user_topics)
+    x, y = st.columns(2)
+    with x:
+        st.write(f"__Number of people__: {number_agent}")
+    with y:
+        st.write(f"__User goals__: {user_goals}")
+    
+    v, w = st.columns(2)
+    with v:
+        st.write("__SN Topics__")
+        st.write(user_topics)
+    with w:
+        st.write("__Own similar SN Topics__:")
+        st.write([t['name'] for t in eq_topics])
     
     # tienes que pasarle un array con los indices que interesan y el otro con los pesos
-    run_simulations(
+    a, b, c = run_simulations(
         number_agents=number_agent,
-        number_posts=1000,
+        number_posts=30,
         simulations_count=10,
-        selectes_characteristics=user_topics,
+        selectes_characteristics=np.array([t['id'] for t in eq_topics]),
         postgen_mean=topics_relevance,
-        user_afinity_means=topics_relevance)
+        # user_afinity_means=topics_relevance
+    )
+    
+    a1, a2, a3 = st.columns(3)
+    f1, f2, f3 = a()
+    with a1:
+        st.pyplot(f1)
+    with a2:
+        st.pyplot(f2)
+    with a3:
+        st.pyplot(f3)
+    
+    f1 = b()
+    st.pyplot(f1)
+    
+    f1 =c()
+    st.pyplot()
+    
 
 
 prompt = st.text_area(label="Describe your community, the number of people, what topics they talk about and what type of reach you want in your network.", height=200)
