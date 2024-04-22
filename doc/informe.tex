@@ -1,54 +1,178 @@
+%%
+%% This is file `sample-acmtog.tex',
+%% generated with the docstrip utility.
+%%
+%% The original source files were:
+%%
+%% samples.dtx  (with options: `all,journal,bibtex,acmtog')
+%% 
+%% IMPORTANT NOTICE:
+%% 
+%% For the copyright see the source file.
+%% 
+%% Any modified versions of this file must be renamed
+%% with new filenames distinct from sample-acmtog.tex.
+%% 
+%% For distribution of the original source see the terms
+%% for copying and modification in the file samples.dtx.
+%% 
+%% This generated file may be distributed as long as the
+%% original source files, as listed above, are part of the
+%% same distribution. (The sources need not necessarily be
+%% in the same archive or directory.)
+%%
+%%
+%% Commands for TeXCount
+%TC:macro \cite [option:text,text]
+%TC:macro \citep [option:text,text]
+%TC:macro \citet [option:text,text]
+%TC:envir table 0 1
+%TC:envir table* 0 1
+%TC:envir tabular [ignore] word
+%TC:envir displaymath 0 word
+%TC:envir math 0 word
+%TC:envir comment 0 0
+%%
+%%
+%% The first command in your LaTeX source must be the \documentclass
+%% command.
+%%
+%% For submission and review of your manuscript please change the
+%% command to \documentclass[manuscript, screen, review]{acmart}.
+%%
+%% When submitting camera ready or to TAPS, please change the command
+%% to \documentclass[sigconf]{acmart} or whichever template is required
+%% for your publication.
+%%
+%%
 
-\documentclass[12pt]{article}
-\usepackage[spanish]{babel}
-\usepackage{graphicx}
-\usepackage[margin=2cm]{geometry}
-\usepackage{listings}
-\usepackage{xcolor}
-\usepackage{subfig}
-\usepackage{float}
-\usepackage{amsmath,amssymb,amsthm}
-\usepackage{graphicx}
-\usepackage{pdfpages}
-\usepackage[spanish]{babel}
-\usepackage{multicol}
-\usepackage{subcaption}
+\documentclass[acmtog]{acmart}
 
+
+%%
+%% \BibTeX command to typeset BibTeX logo in the docs
+\AtBeginDocument{%
+  \providecommand\BibTeX{{%
+    Bib\TeX}}}
+
+%%
+%% Submission ID.
+%% Use this when submitting an article to a sponsored event. You'll
+%% receive a unique submission ID from the organizers
+%% of the event, and this ID should be used as the parameter to this command.
+%%\acmSubmissionID{123-A56-BU3}
+
+%%
+%% For managing citations, it is recommended to use bibliography
+%% files in BibTeX format.
+%%
+%% You can then either use BibTeX with the ACM-Reference-Format style,
+%% or BibLaTeX with the acmnumeric or acmauthoryear sytles, that include
+%% support for advanced citation of software artefact from the
+%% biblatex-software package, also separately available on CTAN.
+%%
+%% Look at the sample-*-biblatex.tex files for templates showcasing
+%% the biblatex styles.
+%%
+
+%%
+%% The majority of ACM publications use numbered citations and
+%% references.  The command \citestyle{authoryear} switches to the
+%% "author year" style.
+%%
+%% If you are preparing content for an event
+%% sponsored by ACM SIGGRAPH, you must use the "author year" style of
+%% citations and references.
+\citestyle{acmauthoryear}
+
+
+%%
+%% end of the preamble, start of the body of the document source.
 \begin{document}
-    \sloppypar
-    \begin{titlepage}
-        \centering
-        {\bfseries\LARGE{Universidad de La Habana} \par}
-        {\scshape\Large{Facultad de Matemáticas y Ciencias de la Computación} \par}
-        \vspace{2cm}
-        {\scshape\huge{Simulación de propagación en \\ Redes Sociales}\par}
-        \vfill
-        \vspace{1cm}
-        {\LARGE{Integrantes:} \par}
-        \vspace{0.5cm}
-        {\Large{Alex Sánchez Saez C412} \par}
-        {\Large{Carlos Manuel González C411} \par}
-        {\Large{Jorge Alberto Aspiolea González C412} \par}
-        \vfill
-        {\Large{Abril 2024} \par}
-    \end{titlepage}
 
-\section{El problema}
+%%
+%% The "title" command has an optional parameter,
+%% allowing the author to define a "short title" to be used in page headers.
+\title{Propagación de Información en una red Social}
 
-La presente investigación consiste en extraer de una red social, simulando el comportamiento básico de las personas en la misma, darle una respuesta 
-a la pregunta que nos planteamos que es: \textit{¿Dado una red de seguidores en una red social, cual es el tipo de post que más alcance tiene en dicha red?} 
-Para resolver esta pregunta vamos a realizar una simulación de dicha red social.
+%%
+%% The "author" command and its associated commands are used to define
+%% the authors and their affiliations.
+%% Of note is the shared affiliation of the first two authors, and the
+%% "authornote" and "authornotemark" commands
+%% used to denote shared contribution to the research.
+\author{Alex Sánchez Saez}
+\affiliation{%
+  \institution{Universidad de la Habana}
+  \state{La Habana}
+  \country{Cuba}
+}
+\author{Carlos Manuel González}
+\affiliation{%
+  \institution{Universidad de la Habana}
+  \state{La Habana}
+  \country{Cuba}
+}
+\author{Jorge Alberto Aspiolea}
+\affiliation{%
+  \institution{Universidad de la Habana}
+  \state{La Habana}
+  \country{Cuba}
+}
 
-\section{Simulación}
 
-La simulación consiste en un \textit{medio ambiente}, el cual sería nuestra red social. Este estará representado por un conjunto de posts que abarca diversos temas, formando un vector
-de características, en el cual, que tan relevante es cada tema en ese post. También los posts serán evaluados por tres estadísticas importantes, \textit{la cantidad de likes}, 
-\textit{la cantidad de dislikes} y \textit{la cantidad de veces que se compartió ese post}.
-\\
-Por otra parte, las personas serán representadas agentes los cuales podrán tomar decisiones y decidir cómo reaccionar a los post, pudiendo decir entre dar like, dislike o compartir la publicación con otros.
-Para modelar este sistema de agentes usaremos una \textbf{arquitectura multiagentes} en donde los agentes podrán interactuar entre ellos y con el medio ambiente. Estos agentes actuarán basados en la 
-arquitectura \textbf{Believes-Desires-Intentions(BDI)}
 
+%%
+%% By default, the full list of authors will be used in the page
+%% headers. Often, this list is too long, and will overlap
+%% other information printed in the page headers. This command allows
+%% the author to define a more concise list
+%% of authors' names for this purpose.
+\renewcommand{\shortauthors}{Alex,Carlos,Jorge}
+
+%%
+%% The abstract is a short summary of the work to be presented in the
+%% article.
+\begin{abstract}
+ Este es el resumen Técnico de nuestro proyecto de IA-Simulación para el Curso 2024 , En este proyecto nos propusimos responder a las siguientes interrogantes; ¿Como se difunde la Información en una Red Social? y ¿Sabiendo esto podremos crear una Publicación que se adecúe a nuestras necesidades y que tenga el Mayor crecimiento Posible? . Para responder a esto Creamos una herramienta basándonos en los conocimientos adquiridos en las asignaturas de IA y Simulación y datos recopilados a través de la Investigación y revisión de la bibliografía disponible
+\end{abstract}
+
+
+\keywords{Simulación, Inteligencia Artificial, Red Social}
+
+%%
+%% This command processes the author and affiliation and title
+%% information and builds the first part of the formatted document.
+\maketitle
+
+\section{Introducción}
+Este es el Resumen Técnico de nuestro proyecto de IA-Simulación para el Curso 2024. En este proyecto nos propusimos responder a las siguientes interrogantes: ¿Cómo se difunde la Información en una Red Social? y ¿Sabiendo esto, podremos crear una Publicación que se adecúe a nuestras necesidades y que tenga el Mayor Crecimiento Posible? Para abordar estas cuestiones, creamos una herramienta basada en una interfaz en lenguaje natural para interactuar con el usuario, además de una simulación multiagente con arquitectura BDI. Este enfoque nos permitió aprovechar los conocimientos adquiridos en las asignaturas de IA y Simulación, así como los datos recopilados a través de la investigación y revisión de la bibliografía disponible.
+
+\section{Acerca de la Difusión de la Información en Redes Sociales}
+Como Parte de nuestra investigación para la creación de este proyecto , nos dimos a la tarea de encontrar y comprender el estado del arte en la representación y análisis computacional de los sitemas sociales complejos como las Redes sociales. Estudiamos El panorama Histórico de la Modelación de este tipo de problemas y Su relación con el Modelo SIR para la propagación de epidemias \url{https://theconversation.com/covid-19-y-difusion-de-innovaciones-parecidos-razonables-157385}. Dimos con el Modelo de Difusión de opiniones de Rogers el cuál explica la dinámica de las opiniones a una macro escala , sin tener en cuenta los eventos locales \url{https://www.eurekando.org/ciencias-sociales/teoria-de-la-difusion-de-rogers-innovacion-y-difusion/}. Analizamos también algunos Modelos Clásicos utilizados para analizar este tipo de problemas. Los problemas Binarios eran simulaciones multiagente donde los agentes tenian solo dos posibles opiniones respecto a un tema -1 o 1 . La forma en que se difundían estas opiniones era variada en dependencia del autor , algunos ejemplos son : Propagación de opiniones por vecinos cercanos (Modelo de Voter) , Opinión Mayoritaria del grupo al que pertenece el agente (Modelo de Majority Rule) , Propagación por los Vecinos con la misma Opinión (Modelo Szrajd) . Una evolución a estos modelos son los modelos Continuos o Modelos Socio-Físicos en los cuales ya los agentes tienen opiniones no binarias , osea un grado de seguridad respecto a su postura con el tema . Algunas formas de propagación de opiniones en estos modelos son : A través de un confidence level o nivel de confianza , esto significa que cuando dos agentes interactúan varían sus opiniones según su nivel de confianza hacia esta (Deffort y Hegselmann-Krausse). 
+
+\subsection{Nuestro Modelo de Simulación}
+
+Nuestra simulación es un sistema multiagente que usa la arquitectura BDI para modelar el comportamiento de un usuario humano dentro de la red .El medio donde se colocan los agentes es una red donde cada agente tiene un nivel de confianza con el resto de agentes , esto es un valor [-1,1] donde 0 significa que el agente (visto como un nodo ) está completamente desconectado y el resto indica que tan bien o mal le cae el otro agente . Las interacciones posibles que tienen los agentes son : dar like a la publicacion i , dar dislike a la publicacion i , compartir la publicacion i , con el agente j 
+
+\subsection{Representación de los datos}
+Nuestro sistema desde el punto de vista de los modelos Socio-Físicos es un modelo multitema tipo CODA (Continous Opinions , Discrete Actions) esto debido a que manejamos las opiniones como un parametro privado de los agentes individuales , y estos solo tienen un rango discreto de acciones a realizar .Representamos las Publicaciones al igual que las opiniones como arreglos de numeros , en el caso de las publicaciones numeros entre 0 y 1 que representan que tan relevante es el tema en la publicacion ; y en el caso de las opinione de los agentes serían numeros entre -1 y 1 que representan que tan de acuerdo esta el agente con el tema en cuestión 
+
+\section{Agentes}
+Cada agente tiene 7 parámetros que definene su comportamiento , estos son sus valores de afinidad que es su opinion respecto a los temas presentes en la red se representa con un array de numero con valores que estan en [-1,1].Trust Afinity que es el valor de confianza que tiene respecto al resto de agentes de la red , se representa como un diccionario de pares (id del agente,valor de confianza) , donde el valor de confianza es un numero [-1,1].Like, Dislike y Share tresholds , son los umbrales para determinar si el agente realizara alguna de esas acciones.Others impact, Extroversion y Group Conformity , estos representan la componente social del agente con estos parametros se definira como asimila la información que obtiene del resto de los agentes. Reaction treshhold y Curiosity , representan la curiosidad y la pereza de los agentes , definen cuando el agente reacciona o no a una publicación que llega o a una publicación de alguien que no conoce. Friends definition , afinity treshold y relevance treshold le ayudan al agente a tomar decisiones , con Friends definition determina que usuarios consideras miembro de su grupo o subred y con los otros dos define la forma en que valora un post (en base a su afinidad personal o la relevancia colectiva)
+
+\section{Acciones que ejecutan los Agentes y Cómo lo hacen}
+En cada Step de la simulación los agentes tendran en sus intentions las acciones que quieren realizar y por cada una de ellas , las ganas que tienen de realizarlas, se toman entonces las N primeras acciones a realizar por el agente , donde N es un número aleatorio y se mandan a realizar , las acciones posibles a realizar por parte de los agentes son : Dar like a una publicación , dar dislike a una publicación , compartir la publicación i con el agente j. Al reaccionar a una publicación los agentes calculan cuán alineadas están las características de dicha publicación con sus gustos, y la relevancia que tiene esa publicación para su grupo , esto lo hace revisando cuantos de los usuarios que pertenecen a su grupo (con los que tenga mas confianza que su Friend definition) y viendo cuáles de estos han dado like a la publicación , tomando esto en cuenta calcula el nivel de gusto que tiene hacia el post en cuestión , luego verifica cuántas de las publicaciones que recuerda son muy similares a esta; Para simular la memoria de un agente guardamos solo las publicaciones que más les hayan impactado , ya sea positiva o negativamente ya que similar a esto funciona la memoria humana , aunque tomando muchas simplificaciones; Si la publicación es algo que el agente ha visto mucho , se penaliza el nivel de gusto , o nivel de relevancia de la publicación al agente .Si la publicación le fue enviada por otro usuario actualiza su relación con él , para esto se tiene en cuenta cuánto le gustó la publicación enviada y las experiencias pasadas con el agente (tanto positiva como negativas , ambos tiposs de interacciones pasadas afectan de manera diferente).De igual manera en haciendo uso de la componente de extroversión del agente se toma la decición de compartir la publicación con el resto de agentes de la red. Teniendo en cuenta el impacto que tienen los demás al agente y cuál es su nivel de conformidad grupal , se ajustan sus afinidades a la publicación vista. Una vez pasado todo este proceso se decide si dar like o dislike a la publicación .Todo esto solo puede pasar si el agente tiene ganas de reaccionar a la publicación , esto se calcula teniendo el cuenta la curiosidad y la pereza del agente
+
+\section{Generación de los datos iniciales para la simulación}
+Todos los datos que se utilizan se generan de manera aleatoria utilizando distribuciones normales que se ajustan mas al comportamiento de los parámetros en una población .Variando la media y la desviación estándar de dichas distribuciones ajustamos la generación de los parámetros a lo que pide el usuario y al análisis que se hace después 
+
+\section{Análisis de resultados}
+Una vez se han hecho las simulaciones Tomamos varios datos , en primer lugar vemos la relación de las métricas por publicación (likes,dislikes y veces compartida) para tener una idea de que publicaciones han triunfado más en la red .Según cuáles sean las carácterísticas que se quieran analizar se toman los posts en donde estas características tengan grado de pertenencia mayor a 0.6 y calculamos sus índices de crecimiento (promedio de sus likes , dislikes y veces compartido) para poder analizar el crecimiento de estos temas en la red. También analizamos lass opiniones de los usuarios respecto a los temas dispuestos para analizar ; esto nos sirve para determinar que post tiene mejor rendimiento en la red según las necesidades del usuario
+
+\section{Criterios de Parada}
+
+Cada Simulación Individual se detiene cuando los usuarios dejan de interactuar con los posts de la red .Los Datos Obtenidos por la simulación van a depender de como se generan las variables que se usan , por lo que es poco probable que converjan de alguna manera , es por esto que como criterio de parada se le deja a eleccion del usuario que cantidad de simulaciones se pueden correr en dependencia de su hardware y recursoss
 
 \section{Procesamiento del Lenguage Natural (NLP)}
 
@@ -87,14 +211,9 @@ donde $sim(a_i, b_j)$ es la similitud entre los temas $i$ y $j$ usando los embed
 \\
 Esta suma ponderada de la similitud de los temas devuelto por el LLM multiplicados por la importancia que tiene cada una en la red social, nos da una medida aproximada de la relevancia del tema $i$ en la red social.
 
-\subsection{Representación del conocimiento}
 
-En la simulación, una de las formas de interactuar el agente con el ambiente es mediante la publicación de nuevos posts. Estos posts son generados aleatoriamente basándonos en los \textbf{believes}, \textbf{desires} e \textbf{intentions} del agente. Esto aunque puede funcionar, una forma más realista de hacer que el usuario
-cree una publicación coherente es mediante una base de conocimiento. Si un agente tubiera acceso a una base de conocimiento en donde, el agente teniendo varios temas de interés puediera seleccionar otros temas acordes a los q él quiere para la publación con un nivel de importancia para cada tema, entonces el usuario será capaz 
-de poder crear publicaciones más abarcadoras en cuantos a temas se refiere, pero sin salirse de los tópicos generales, ya que estaríamos escogiendo otros temas semejantes a los que él ya tiene.
-\\
-Para esto podemos usar como nuestra "base de conocimiento" a la matriz de de correlación de los embeddings de los temas. Mas formalmente sería, tener una matriz $M_{n \times n}$ donde $M_{ij} = sim(v_i, v_j) = \alpha, 1 \leq \alpha \leq 1$ indica la semejanza del tema $i$ con el tema $j$. Con esta matriz de correlación es fácil buscar
-una un tema, los temas más semejantes a él, y usando el mismo índice de similitud se puede calcular el el nivel de importancia de este nuevo tema en el post.
+\subsection{Representación del conocimiento}
+Con los embeddings calculados , podemos crear una base de conocimiento sobre los temas de la red , que nos ayude a razonar sobre la relación que existe entre lso diferentes temas que existen en esta . Para esto calculamos una matriz de correlación que nos dice que tan relacionado está un tema con el resto. Esto lo utilizamos para ajustar los parámetros en la generación de los posts de manera que sea coherente y se ajuste a la petición del usuario de nuestro sistema , digamos que el usuario quiera que la mayoria de sus posts hablen mucho de tecnología , eso implicaría que tecnología debe tener una media más alta que el resto de temas , a su vez , temas que guarden cierta relación con la tecnología deben tener medias semejantes y otros temas muy bajas , porque no tendrán relación con lo que se maneja en la red , esto nos sirve para que la forma de las publicaciones al ser generadas tengan mas coherencia y sean más realistas
 
 
 \section{Optimización}
@@ -122,11 +241,9 @@ indica que el tema $i$ debe tener una relevancia $x_i$ en el post para que tenga
 Para saber si una solución es mejor que otra debemos tener una forma de cuantificar dicha mejora y así poder hacer la comparación. Para esto definimos una función $f: D \rightarrow \mathbb{R}$, donde $D$ es
 el dominio de todas las soluciones posibles del problema, o sea, todas las formas posibles en las que se puede construir un post, y $f(x) \in \mathbb{R}$ un número que indica que tan buena es la solución. 
 Podemos ver que $D$ es de tamaño infinito, ya que una solución consiste en una distribución de $n$ números entre $0$ y $1$, y como ese conjunto es no enumerable entonces hay infinitas combinaciones de $n$ numeros
-que pertenezcan al rango $[0, 1]$.PO
+que pertenezcan al rango $[0, 1]$.
 \\
-Por ende, una buena forma de enfrentar el problema es usando metaheurísticas para encontrar a la función objetivo $f$ un óptimo que se aproxime a la solución real. Como metaheurística usamos \textbf{Particles Swarm Optimization (PSO)},
-la que es buena para optimizar funciones. 
-% TODO: Cambiar esta justificación de xq usamos enjambre de partículas
+Por ende, una buena forma de enfrentar el problema es usando metaheurísticas para encontrar a la función objetivo $f$ un óptimo que se aproxime a la solución real. Como metaheurística usamos \textbf{Particles Swarm Optimization (PSO)}, que nos permite tener un enfoque multiagente para explorar el espacio de las soluciones y una implementación sencilla 
 
 
 \subsection{Función de optimización}
@@ -169,10 +286,12 @@ la que es buena para optimizar funciones.
 % $$
 
 
+\section{Algunas ideas que no se llegaron a implementar}
+La posibilidad de que los agentes falseen sus opiniones como pasa a menudo en internet fue una de las posibilidades que no implementamos dada su complejidad . Agregar mas acciones posibles a los agentes , teniamos la idea de permitir comentarios (positivos y negativos) asi como mensajes los cuales podriamos llevar a lenguaje natural usando el LLM , por temas de tiempo y complejidad no llevamos esta idea a cabo. Agregar mas control sobre la simulacion por parte del usuario , con una buena descripcion de la red se podrian extraer mas parámetros para la simulación , como serían la extroversión de los agentes de la red , la posibilidad de simular varias redes con distintas distribuciones de agentes , controlar la forma en que se generan las relaciones de los agentesasi como generar grupos de fanaticos o excepticos en la red , como se genera la topología de la red también sería un aspecto interesante a agregar. Respecto al análisis de los datos , se podría agregar un análisis de los grupos sociales que se crean depués de cada simulación para analizar como se agrupan loss usuarios de la red
 
+\section{Conclusiones}
+Con este trabajo se llegan a conclusiones sobre la forma es que se crean y conectan las opiniones en internet , en un entorno de red social muy simplificado . Podemos llegar a análisis interesantes sobre como se comporta la influencia social para los usuarios de una red a través de la modelación e interacción de usuarios de distintos tipos y como se influencian entre ellos . Se puede analizar como las estrategias de marketing se pueden optimizar a través de un conocimiento muy general del público objetivo y el ambiente donde se lanzará la campaña
 
-
-
-\vspace{10cm}
-
+\section{Algunos resultados experimentales}
 \end{document}
+\endinput
