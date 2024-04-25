@@ -32,8 +32,9 @@ def stadistics_per_characteristic(
 ):
     # Número de características
     individual_scores = []
+    global_scores = []
 
-    for characteristic_index in characteristics:
+    for characteristic_index in range(len(all_characteristics)):
         likes_sum = 0
         dislikes_sum = 0
         shared_sum = 0
@@ -45,8 +46,16 @@ def stadistics_per_characteristic(
                 shared_sum += post["shared"]
         total_dislikes = max(total_dislikes, 1)
         total_likes = max(total_likes, 1)
-        individual_scores.append(
+        if characteristic_index in characteristics:
+            individual_scores.append(
             [
+                likes_sum / total_likes,
+                dislikes_sum / total_dislikes,
+                shared_sum / max(total_shares, 1),
+            ]
+            )
+        global_scores.append(
+             [
                 likes_sum / total_likes,
                 dislikes_sum / total_dislikes,
                 shared_sum / max(total_shares, 1),
@@ -98,7 +107,7 @@ def stadistics_per_characteristic(
     plt.tight_layout()
 
     # Devolver la figura en lugar de mostrarla
-    return fig
+    return fig, global_scores
     
 
 def user_opinions(M, all_characteristics, characteristics):
