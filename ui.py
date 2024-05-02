@@ -2,7 +2,7 @@ import streamlit as st
 import numpy as np
 from src.tools.llm_claude import LLMClaude
 from src.tools.llm_openai import LLMOpenAI
-from src.tools.prompts import extract_number_agents, extract_topics, extract_user_goals
+from src.tools.prompts import extract_number_agents, extract_topics, extract_user_goals, build_post, TopicRelevance
 from src.tools.topics import build_topics_relevances
 from src.tools.meta import run_meta
 from src.tools.load_characteristics import load_characteristics
@@ -92,6 +92,12 @@ def process_input(prompt:str, words=50):
         st.write(f"Topic: {topics[i]}, Pertenece: {v}")        
 >>>>>>> b50bce1c142d00c9c43b414d78c0ea646f30bf97
 
+    st.write('### Example of a post')
+    post = build_post(
+        [TopicRelevance(tpc, v) for (tpc, v) in showing],
+        llm=llm
+    )
+    st.write(post)
 
 prompt = st.text_area(label="Describe your community, the number of people, what topics they talk about and what type of reach you want in your network.", height=200)
 button = st.button('Execute')

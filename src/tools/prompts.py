@@ -169,3 +169,39 @@ Respuesta:
         ]
     except:
         return None
+
+
+def build_post(topics: list[TopicRelevance], llm: LLModel, temp=0.4, lang='en') -> str:
+    PROMPTS = {
+    'en': """
+Using the topics and proportions given below between <context> tags, build a post for a social network which covers the topics and their corresponding proportions.
+The post must be coherent, and you can merge this topics to comply with the proportions. Return just the text, do not add any extra comments.
+<context>
+{context}
+<context>
+Answer:
+""",
+    'es': """
+Usando los temas y proporciones proporcionada entre las etiquetas <context>, genera un post para una red social que abarque esos temas y en las proporciones correspondientes.
+El post debe ser coherente, y puedes combinar los temas para cumplir con las proporciones. Devuelve solo el texto, no añadas ningún otro comentario.
+<context>
+{context}
+<context>
+Respuesta:
+"""
+    }
+    try:
+        prompt = PROMPTS[lang]
+    except KeyError:
+        print(f'{lang} is not a valid language. Expect: [es, en]')
+        return None
+    
+    mapped_topics = list(map(lambda x: [x.topic, x.relevance], topics))
+
+    messages = [
+        LLMMessage('system', SYSTEM_PROMPT),
+        LLMMessage('user', prompt.format(context=mapped_topics))
+    ]
+
+    result = llm.query(messages)
+    return result
