@@ -1,100 +1,60 @@
 {
-    "variables_difusas": {
-        "likes": {
-            "universo": {
-                "inicio": 0,
-                "fin": "máximo_likes",
-                "paso": 1
-            },
-            "conjuntos_difusos": {
-                "low_success": {
-                    "membresía": "[0, low_success_def, mid_success_def]"
-                },
-                "mid_success": {
-                    "membresía": "[mid_success_def, mid_success_def, high_success_def]"
-                },
-                "high_success": {
-                    "membresía": "[mid_success_def, high_success_def, high_success_def]"
-                }
-            }
-        },
-        "dislikes": {
-            "universo": {
-                "inicio": 0,
-                "fin": "máximo_dislikes",
-                "paso": 1
-            },
-            "conjuntos_difusos": {
-                "low_success": {
-                    "membresía": "[0, low_success_def, mid_success_def]"
-                },
-                "mid_success": {
-                    "membresía": "[mid_success_def, mid_success_def, high_success_def]"
-                },
-                "high_success": {
-                    "membresía": "[mid_success_def, high_success_def, high_success_def]"
-                }
-            }
-        },
-        "shared": {
-            "universo": {
-                "inicio": 0,
-                "fin": "máximo_compartidos",
-                "paso": 1
-            },
-            "conjuntos_difusos": {
-                "low_success": {
-                    "membresía": "[0, low_success_def, mid_success_def]"
-                },
-                "mid_success": {
-                    "membresía": "[mid_success_def, mid_success_def, high_success_def]"
-                },
-                "high_success": {
-                    "membresía": "[mid_success_def, high_success_def, high_success_def]"
-                }
-            }
-        },
-        "relevance": {
-            "universo": {
-                "inicio": 0,
-                "fin": 1,
-                "paso": 0.00001
-            },
-            "conjuntos_difusos": {
-                "no_relevance": {
-                    "membresía": "[0, 0, 0.5]"
-                },
-                "low_relevance": {
-                    "membresía": "[0, 0.5, 1]"
-                },
-                "mid_relevance": {
-                    "membresía": "[0.5, 1, 1]"
-                },
-                "high_relevance": {
-                    "membresía": "[0.5, 1, 1]"
-                }
-            }
-        },
-        "group_conform": {
-            "universo": {
-                "inicio": 0,
-                "fin": 1,
-                "paso": 0.00001
-            },
-            "conjuntos_difusos": {
-                "no_group_conform": {
-                    "membresía": "[0, 0, 0.5]"
-                },
-                "low_group_conform": {
-                    "membresía": "[0, 0.5, 1]"
-                },
-                "mid_group_conform": {
-                    "membresía": "[0.5, 1, 1]"
-                },
-                "high_group_conform": {
-                    "membresía": "[0.5, 1, 1]"
-                }
-            }
-        }
+    "likes": {
+        "antecedent": true,
+        "low_success": null,
+        "mid_success": null,
+        "high_success": null
+    },
+    "dislikes": {
+        "antecedent": true,
+        "low_success": null,
+        "mid_success": null,
+        "high_success": null
+    },
+    "shares": {
+        "antecedent": true,
+        "low_success": null,
+        "mid_success": null,
+        "high_success": null
+    },
+    "relevance": {
+        "consequent": true,
+        "no_relevance": null,
+        "low_relevance": null,
+        "mid_relevance": null,
+        "high_relevance": null
+    },
+    "friendship": {
+        "consequent": true,
+        "no_friendship": null,
+        "low_friendship": null,
+        "mid_friendship": null,
+        "high_friendship": null
+    },
+    "group_conform": {
+        "antecedent": true,
+        "no_group_conform": null,
+        "low_group_conform": null,
+        "mid_group_conform": null,
+        "high_group_conform": null
+    },
+    "like_score": {
+        "antecedent": true,
+        "negative": null,
+        "neutral": null,
+        "positive": null
+    },
+    "friend_trusts": {
+        "antecedent": true,
+        "hated": null,
+        "uknow": null,
+        "just_knowed": null,
+        "good_friend": null
+    },
+    "friend_experience": {
+        "antecedent": true,
+        "negative": null,
+        "neutral": null,
+        "positive": null
     }
 }
