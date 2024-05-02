@@ -16,9 +16,9 @@ class UserGloalsImportance(LLMJsonObjects):
     def from_string(self, str_obj: str) -> bool:
         try:
             data_dict = json.loads(str_obj)
-            self.likes = data_dict['likes']
-            self.dislikes = data_dict['dislikes']
-            self.shares = data_dict['shares']
+            self.likes = float(data_dict['likes'])
+            self.dislikes = float(data_dict['dislikes'])
+            self.shares = float(data_dict['shares'])
             
             return True
         except Exception as e:
@@ -90,7 +90,7 @@ def extract_number_agents(user_prompt: str, llm: LLModel, temp=0.4, lang='en') -
     PROMPTS = {
         'en': """
 Your goal is extract from a user's text about their community on the social network the number of people who belong to the network.
-Use just the given context and return just the number as the answer. If you don't know the answer, just return 0.
+Use just the given context and return just the number as the answer, without any other comment. If you don't know the answer, just return 0.
 Here is the text:
 <context>
 {user_prompt}
@@ -120,7 +120,7 @@ Respuesta:
     ]
 
     result = llm.query(messages)
-    return result
+    return int(result)
     
 
 def extract_topics(user_prompt, llm: LLModel, temp=0.4, lang='en') -> list[TopicRelevance]:
@@ -164,7 +164,7 @@ Respuesta:
     parsed = json.loads(result)
     try:
         return [
-            TopicRelevance(t['name'], t['relevance'])
+            TopicRelevance(t['name'], float(t['relevance']))
             for t in parsed
         ]
     except:

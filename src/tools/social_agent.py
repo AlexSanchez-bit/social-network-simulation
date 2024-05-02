@@ -28,11 +28,6 @@ class SocialAgent(Agent):
         reaction_brobability=0.8,
         imitation_influence=0.4,
         group_conformity=0.3,
-        low_success_definition=5,
-        mid_success_definition =10,
-        high_success_definition =100,
-        remembered_posts=[],
-        memory_strength=1
     ):
         super().__init__(unique_id, model)
         self.beliefs = {
@@ -45,7 +40,6 @@ class SocialAgent(Agent):
             "extroversion": extroversion,
             "curiosity": curiosity,
             "reaction_brobability": reaction_brobability,
-
         }
         self.desires = {
             "most_liked_post": [],
@@ -62,16 +56,6 @@ class SocialAgent(Agent):
         self.intentions = []
         self.id = unique_id
         self.model = model
-        self.low_success_def = low_success_definition
-        self.mid_success_def = mid_success_definition
-        self.high_success_def = high_success_definition
-        
-        self.remembered_posts = remembered_posts
-        self.memory_strength = memory_strength
-        self.most_popular_publications=[]
-        
-    def decide_next_action_to_do(self):
-        pass
 
     def calculate_like_score(self, post_id):
         # Calcular el nivel de gusto hacia un post en base a las creencias
@@ -199,13 +183,8 @@ class SocialAgent(Agent):
 
             if react_probability <= self.beliefs["reaction_brobability"]:
                 return
-        if len(self.most_popular_publications) > self.memory_strength:
-            for i, index in enumerate(self.most_popular_publications):
-                        if len(posts[post_id]['likes']) > len(posts[index]['likes']) :
-                            self.most_popular_publications[i] = post_id
-                            break
-        else:
-            self.most_popular_publications.append(post_id)
+            
+
         # Calcular el nivel de gusto hacia el post
         like_score = self.calculate_like_score(post_id)
 

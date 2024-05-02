@@ -3,13 +3,13 @@ import numpy as np
 import random
 
 # Particle Swarm Optimization
-class PSO:
+class PSO():
     def __init__(self) -> None:
         self.hpos = None
         super().__init__()
     
     class Particle:
-        def __init__(self, pos, speed, inertia=0.5, cognitive_coeff=0.6, social_coeff=0.6):
+        def __init__(self, pos, speed, inertia=0.5, cognitive_coeff=0.5, social_coeff=0.6):
             assert len(pos) == len(speed), "The particle position and speed must be the same length"
             self.pos = pos
             self.speed = speed
@@ -26,7 +26,7 @@ class PSO:
                 self.speed = self.inertia*self.speed + self.cog_coeff*rp*(self.best_pos-self.pos) + self.soc_coeff*rg*(global_best - self.pos)
     
         def upd_pos(self):
-            self.pos += self.speed            
+            self.pos += self.speed
 
         def upd_best_pos(self):
             self.best_pos = self.pos
@@ -36,13 +36,13 @@ class PSO:
         
     
     def stop_condition(self, t) -> bool:
-        return t > 1000
+        return t > 3000
         
     def get_init_pop(self, sol_dim, pop_size):        
         init_pop = [
             PSO.Particle(
                 # TODO: change (-5, 5) by the correct search zone
-                pos=np.array([random.uniform(-5, 5) for _ in range(sol_dim)]),
+                pos=np.array([random.uniform(0, 1) for _ in range(sol_dim)]),
                 speed=np.zeros(sol_dim)
             )
             for i in range(pop_size)
@@ -50,12 +50,12 @@ class PSO:
         return init_pop
     
     def is_best_sol(self, x, y, obj_func: Callable):
-        if obj_func(x) < obj_func(y):
+        if obj_func(x) > obj_func(y):
             return True
         else:
             return False
     
-    def solve(self, obj_func: Callable, sol_dim, pop_size=random.randint(6, 10), verbose=False):
+    def solve(self, obj_func: Callable, sol_dim, pop_size=random.randint(6, 10), verbose=False) -> np.any:
         # generate the initial population
         sols = self.get_init_pop(sol_dim, pop_size)
         
@@ -81,4 +81,4 @@ class PSO:
                     global_best = p.best_pos
             t += 1
                     
-        return global_best
+        return (global_best, obj_func(global_best))

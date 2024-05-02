@@ -1,9 +1,13 @@
 import streamlit as st
-
+import numpy as np
 from src.tools.llm_claude import LLMClaude
 from src.tools.llm_openai import LLMOpenAI
 from src.tools.prompts import extract_number_agents, extract_topics, extract_user_goals
 from src.tools.topics import build_topics_relevances
+from src.tools.meta import run_meta
+from src.tools.load_characteristics import load_characteristics
+
+from src.simulation import run_simulations
 
 from src.simulation import run_simulations
 
@@ -20,8 +24,9 @@ def process_input(prompt:str, words=50):
     number_agent = extract_number_agents(prompt, llm=llm)
     user_goals = extract_user_goals(prompt, llm=llm)
     user_topics = extract_topics(prompt, llm=llm)
-    topics_relevance = build_topics_relevances(user_topics)
+    eq_topics, topics_relevance = build_topics_relevances(user_topics)
 
+<<<<<<< HEAD
     st.write(number_agent)
     st.write(user_goals)
     st.write(user_topics)
@@ -35,6 +40,57 @@ def process_input(prompt:str, words=50):
         selectes_characteristics=user_topics,
         postgen_mean=topics_relevance,
         user_afinity_means=topics_relevance)
+=======
+    x, y = st.columns(2)
+    with x:
+        st.write(f"__Number of people__: {number_agent}")
+    with y:
+        st.write(f"__User goals__: {user_goals}")
+    
+    v, w = st.columns(2)
+    with v:
+        st.write("__SN Topics__")
+        st.write(user_topics)
+    with w:
+        st.write("__Our similar SN Topics__:")
+        st.write([t['name'] for t in eq_topics])
+    
+    # tienes que pasarle un array con los indices que interesan y el otro con los pesos
+    a, b, c = run_simulations(
+        number_agents=number_agent,
+        number_posts=30,
+        simulations_count=10,
+        selectes_characteristics=np.array([t['id'] for t in eq_topics]),
+        postgen_mean=topics_relevance,
+        user_afinity_means=topics_relevance
+    )
+
+    a1, a2, a3 = st.columns(3)
+    f1, f2, f3 = a()
+    with a1:
+        st.pyplot(f1)
+    with a2:
+        st.pyplot(f2)
+    with a3:
+        st.pyplot(f3)
+    
+    f4, C = b()
+    st.pyplot(f4)
+    
+    f5 = c()
+    st.pyplot(f5)
+    
+    st.subheader("Best post that satisfies your goals")
+    best_sol = run_meta(
+        C, 
+        rel=np.array([user_goals.likes, user_goals.dislikes, user_goals.shares]), 
+        pp=np.array([t['id'] for t in eq_topics])
+    )
+
+    topics = load_characteristics()
+    for [i, v] in best_sol:
+        st.write(f"Topic: {topics[i]}, Pertenece: {v}")        
+>>>>>>> b50bce1c142d00c9c43b414d78c0ea646f30bf97
 
 
 prompt = st.text_area(label="Describe your community, the number of people, what topics they talk about and what type of reach you want in your network.", height=200)
@@ -58,7 +114,7 @@ left, right = st.columns(2)
 with left:
     card = st.container(border=True)
     card.caption("""
-My community in discord has  around of 1000 peoples . Here, i share content about programming and software development mainly. Often i share content about artificial intelligence and the people like it so much. Also i make some posts about my career in the software development. Generally, people like AI content much more than personal growth content. I would like to be able to continue creating content in a smarter way to grow my community and reach the greatest number of people possible, and help them in their professional life.
+My community in discord has  around of 1000 people. Here, i share content about programming and software development mainly. Often i share content about artificial intelligence and the people like it so much. Also i make some posts about my career in the software development. Generally, people like AI content much more than personal growth content. I would like to be able to continue creating content in a smarter way to grow my community and reach the greatest number of people possible, and help them in their professional life.
 """)
 # Mi comunidad en discord tiene aproximadamente 1000 personas. Aquí comparto contenido sobre programación y desarrollo de software principalente.
 # A veces comparto contenido sobre inteligencia artificial y a la gente le gusta mucho. Tambien hago algunas publicaciones hablando sobre mi trayectoria
