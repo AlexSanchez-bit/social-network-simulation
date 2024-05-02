@@ -4,6 +4,7 @@ import numpy as np
 import random
 import skfuzzy as fuzz
 from skfuzzy import control as ctrl
+from src.tools.UserTypes_rules import get_user_type_rules,users_types
 
 
 posts = []
@@ -37,11 +38,11 @@ class SocialAgent(Agent):
         remembered_posts=[],
         memory_strength=1,
         post_probability=1,
-        user_type_rules=[]
+        user_type='normal'
     ):
         super().__init__(unique_id, model)
         self.post_probability=post_probability
-        self.user_type_rules = user_type_rules
+        self.user_type = user_type
         self.beliefs = {
             "affinity": affinity_beliefs,
             "trust": trust_beliefs,
@@ -115,14 +116,31 @@ class SocialAgent(Agent):
         # calculating the intentions to share this post
         share_meter = like_score + np.random.random() * self.beliefs["extroversion"]
         # if itsh highlt probably for me to share then take the desition for each user of my network
+        likes_fuzzy,dislikes_fuzzy,shares_fuzzy,group_conform,relevance,friend_trusts,friend_experience,friendship,like_score_ = self.calculate_fuzzy_sets()
+        ruleset = get_user_type_rules(likes_fuzzy=likes_fuzzy,dislikes_fuzzy=dislikes_fuzzy,shares_fuzzy=shares_fuzzy,relevance=relevance,group_conform=group_conform,friend_trust=friend_trusts,friend_experience=friend_experience,friendship=friendship,like_score=like_score_,user_type=self.user_type)
+
+        control_system = ctrl.ControlSystem(ruleset)
+
+        system = ctrl.ControlSystemSimulation(control_system)
+
         for friend_id in self.beliefs["trust"]:
             # obtaining the user relevance for me
+            system.input['likes'] = len(posts[post_id]['likes'])
+            system.input['dislikes'] = len(posts[post_id]['dislikes'])
+            system.input['shared'] = posts[post_id]['shared']
+            system.input['group_conform'] = np.cos((np.dot(self.beliefs['group_likes'],posts[post_id]['features']))/(np.linalg.norm(self.beliefs['group_likes'])*np.linalg.norm(posts[post_id]['features'])))
             friend_rate = self.beliefs["trust"][friend_id]
-            # if i like the post and i have high friendship with the user , then share
-            if (friend_rate * share_meter) > self.beliefs["share_probability"]:
+            system.input['friend_trust'] = friend_rate
+            system.input['friend_experience'] =self.get_friend_experience(posts[post_id]['author'])
+            system.input['like_score']=like_score
+            system.compute()
+            print('entrada: ',system.input)
+            print('computado de las reglas del share : ',system.output,share_meter)
+            if system.output['friendship'] >= share_meter:
                 self.intentions.append(
                     ("share", (friend_rate + like_score) / 2, post_id, friend_id)
                 )
+
 
     def update_relationship(self, sender_id, like_score):
         # Actualizar la relación con el agente que compartió el post
@@ -255,11 +273,39 @@ class SocialAgent(Agent):
 
         self.decide_to_share(like_score, post_id)
 
-        # Agregar la acción a intentions
-        if like_score>0 and like_score <= self.beliefs["like_probability"]:
+            
+        likes_fuzzy,dislikes_fuzzy,shares_fuzzy,group_conform,relevance,friend_trusts,friend_experience,friendship,like_score_ = self.calculate_fuzzy_sets()
+        ruleset = get_user_type_rules(likes_fuzzy=likes_fuzzy,dislikes_fuzzy=dislikes_fuzzy,shares_fuzzy=shares_fuzzy,relevance=relevance,group_conform=group_conform,friend_trust=friend_trusts,friend_experience=friend_experience,friendship=friendship,like_score=like_score_,user_type=self.user_type)
+
+        control_system = ctrl.ControlSystem(ruleset)
+
+        system = ctrl.ControlSystemSimulation(control_system)
+            # obtaining the user relevance for me
+        system.input['likes'] = len(posts[post_id]['likes'])
+        system.input['dislikes'] = len(posts[post_id]['dislikes'])
+        system.input['shared'] = posts[post_id]['shared']
+        system.input['group_conform'] = np.cos((np.dot(self.beliefs['group_likes'],posts[post_id]['features']))/(np.linalg.norm(self.beliefs['group_likes'])*np.linalg.norm(posts[post_id]['features'])))
+        if posts[post_id]['author'] != None:
+            system.input['friend_experience'] =self.get_friend_experience(posts[post_id]['author'])
+            if posts[post_id]['author'] in self.beliefs['trust']:
+                  system.input['friend_trust'] = self.beliefs['trust'][posts[post_id]['author']]
+            else:
+                    system.input['friend_trust'] =0
+        else:
+            system.input['friend_trust'] =0
+            system.input['friend_experience'] =0
+            
+        system.input['like_score']=like_score
+        system.compute()
+        print('entrada: ',system.input)
+        print('computado de las reglas del like : ',system.output,self.beliefs["like_probability"])
+        if system.output['relevance'] >= self.beliefs["like_probability"]:
             self.intentions.append(("like", like_score, post_id))
-        elif like_score >= -1 * self.beliefs["like_probability"]:
+        elif system.output['relevance']< 0 and system.output['relevance'] >= -1*self.beliefs["like_probability"]:
             self.intentions.append(("dislike", -1*like_score, post_id))
+
+
+
 
     def align_ideas_with_friends(self, post_id):
         post = posts[post_id]
@@ -304,59 +350,10 @@ class SocialAgent(Agent):
     def check_post_grow(self):
         memory_posts = random.randint(0,min(len(self.remembered_posts),self.memory_strength))
         on_mind_posts= random.sample(self.remembered_posts,memory_posts) 
-        
-        likes_universe = np.arange(0, max(max([len(post['likes']) for post in posts]),self.high_success_def)+1, 1)
-        dislikes_universe = np.arange(0, max(max([len(post['dislikes']) for post in posts]),self.high_success_def)+1, 1)
-        shares_universe = np.arange(0, max(self.high_success_def,max([post['shared'] for post in posts]))+1, 1)
+        likes_fuzzy,dislikes_fuzzy,shares_fuzzy,group_conform,relevance,friend_trusts,friend_experience,friendship,like_score = self.calculate_fuzzy_sets()
+        ruleset = get_user_type_rules(likes_fuzzy=likes_fuzzy,dislikes_fuzzy=dislikes_fuzzy,shares_fuzzy=shares_fuzzy,relevance=relevance,group_conform=group_conform,friend_trust=friend_trusts,friend_experience=friend_experience,friendship=friendship,like_score=like_score,user_type=self.user_type)
 
-        relevance = ctrl.Consequent(np.arange(0,1,0.00001),'relevance')
-        group_conform = ctrl.Antecedent(np.arange(0,1,0.00001),'group_conform')
-        
-        likes_fuzzy = ctrl.Antecedent(likes_universe,'likes')
-        dislikes_fuzzy = ctrl.Antecedent(dislikes_universe,'dislikes')
-        shares_fuzzy = ctrl.Antecedent(shares_universe,'shared')
-
-        
-        likes_fuzzy['low_success'] = fuzz.trimf(likes_universe, [0, 0, self.low_success_def])
-        likes_fuzzy['mid_success'] = fuzz.trimf(likes_universe, [self.mid_success_def, self.mid_success_def, self.high_success_def])
-        likes_fuzzy['high_success'] = fuzz.trimf(likes_universe, [self.mid_success_def, self.high_success_def, self.high_success_def])
-        
-        
-        dislikes_fuzzy['low_success'] = fuzz.trimf(dislikes_universe, [0, self.low_success_def, self.mid_success_def])
-        dislikes_fuzzy['mid_success'] = fuzz.trimf(dislikes_universe, [self.mid_success_def, self.mid_success_def, self.high_success_def])
-        dislikes_fuzzy['high_success'] = fuzz.trimf(dislikes_universe, [self.mid_success_def, self.high_success_def, self.high_success_def])
-        
-        shares_fuzzy['low_success'] = fuzz.trimf(shares_universe, [0, self.low_success_def, self.mid_success_def])
-        shares_fuzzy['mid_success'] = fuzz.trimf(shares_universe, [self.mid_success_def, self.mid_success_def, self.high_success_def])
-        shares_fuzzy['high_success'] = fuzz.trimf(shares_universe, [self.mid_success_def, self.high_success_def, self.high_success_def])
-
-        
-
-        relevance['no_relevance'] = fuzz.trimf(relevance.universe, [0, 0, 0.5])
-        relevance['low_relevance'] = fuzz.trimf(relevance.universe, [0, 0.5, 1])
-        relevance['mid_relevance'] = fuzz.trimf(relevance.universe, [0.5, 1, 1])
-        relevance['high_relevance'] = fuzz.trimf(relevance.universe, [0.5, 1, 1])
-        
-        group_conform['no_group_conform'] = fuzz.trimf(group_conform.universe, [0, 0, 0.5])
-        group_conform['low_group_conform'] = fuzz.trimf(group_conform.universe, [0, 0.5, 1])
-        group_conform['mid_group_conform'] = fuzz.trimf(group_conform.universe, [0.5, 1, 1])
-        group_conform['high_group_conform'] = fuzz.trimf(group_conform.universe, [0.5, 1, 1])
-
-
-        
-        reglas = []
-
-        # Regla 1: Si hay alto éxito con likes y bajo éxito en dislikes, entonces es relevante
-        reglas.append(ctrl.Rule(likes_fuzzy['high_success'] & dislikes_fuzzy['low_success'], relevance['high_relevance']))
-        reglas.append(ctrl.Rule(likes_fuzzy['low_success'] | dislikes_fuzzy['high_success'], relevance['no_relevance']))
-        reglas.append(ctrl.Rule(~likes_fuzzy['high_success'] | ~dislikes_fuzzy['high_success'], relevance['low_relevance']))
-        # Regla 2: Si es relevante y se conforma al grupo, entonces sigue siendo relevante
-        reglas.append(ctrl.Rule(relevance['high_relevance'] & group_conform['high_group_conform'], relevance['high_relevance']))
-
-        # Regla 3: Si es relevante pero no se conforma al grupo, entonces no es relevante
-        # reglas.append(ctrl.Rule(relevance['high_relevance'] & group_conform['no_group_conform'], relevance['no_relevance']))
-
-        control_system = ctrl.ControlSystem(reglas)
+        control_system = ctrl.ControlSystem(ruleset)
 
         system = ctrl.ControlSystemSimulation(control_system)
 
@@ -365,20 +362,123 @@ class SocialAgent(Agent):
         for post in on_mind_posts:
             system.input['likes'] = len(posts[post]['likes'])
             system.input['dislikes'] = len(posts[post]['dislikes'])
-            print(
-                len(posts[post]['likes']),
-                 len(posts[post]['dislikes'])
-            )
-            # system.input['shared'] = posts[post]['shared']
+            system.input['shared'] = posts[post]['shared']
             system.input['group_conform'] = np.cos((np.dot(self.beliefs['group_likes'],posts[post]['features']))/(np.linalg.norm(self.beliefs['group_likes'])*np.linalg.norm(posts[post]['features'])))
+            
+            if posts[post]['author'] != None:
+                system.input['friend_experience'] =self.get_friend_experience(posts[post]['author'])
+                if posts[post]['author'] in self.beliefs['trust']:
+                    system.input['friend_trust'] = self.beliefs['trust'][posts[post]['author']]
+                else:
+                    system.input['friend_trust'] =0
+            else:
+                    system.input['friend_trust'] =0
+                    system.input['friend_experience'] =0
+            
+            system.input['like_score']=0
             
             system.compute()
             
+            if len(posts[post]['likes']) > self.high_success_def:
+                self.low_success_def = self.mid_success_def
+                self.mid_success_def = self.high_success_def
+                self.high_success_def = len(posts[post]['likes'])
+                
+            
             if system.output['relevance'] > max_relevance:
                 best_post = post
+
         if best_post >=0: 
             self.desires['post_target'] =posts[best_post]['features']
+            
+    def get_friend_experience(self,agent_id):
+        if agent_id in self.desires["friends"]:
+                positive_interactions = (
+                    self.desires["friends"][agent_id]["positive_interactions"]
+                    / self.desires["friends"][agent_id]["total_interactions"]
+                )
+
+                # calculating the negative interactions so far
+                negative_interactions = (
+                    self.desires["friends"][agent_id]["negative_interactions"]
+                    / self.desires["friends"][agent_id]["total_interactions"]
+                )
+                
+                return max(positive_interactions - negative_interactions,0)
+        else:
+            return 0
+
+
+    def calculate_fuzzy_sets(self):
         
+        likes_universe = np.arange(0, max(max([len(post['likes']) for post in posts]),self.high_success_def)+1, 1)
+        dislikes_universe = np.arange(0, max(max([len(post['dislikes']) for post in posts]),self.high_success_def)+1, 1)
+        shares_universe = np.arange(0, max(self.high_success_def,max([post['shared'] for post in posts]))+1, 1)
+
+        relevance = ctrl.Consequent(np.arange(-1,1,0.1),'relevance')
+        friendship = ctrl.Consequent(np.arange(-1,1,0.1),'friendship')
+
+        group_conform = ctrl.Antecedent(np.arange(0,1,0.1),'group_conform')
+        
+        likes_fuzzy = ctrl.Antecedent(likes_universe,'likes')
+        dislikes_fuzzy = ctrl.Antecedent(dislikes_universe,'dislikes')
+        shares_fuzzy = ctrl.Antecedent(shares_universe,'shared')
+        
+        like_score = ctrl.Antecedent(np.arange(-1,1,0.1),'like_score')
+        friend_trusts = ctrl.Antecedent(np.arange(-1,1,0.1),'friend_trust')
+        friend_experience = ctrl.Antecedent(np.arange(-1,1,0.1),'friend_experience')
+        
+        friend_trusts['hated'] = fuzz.trimf(friend_trusts.universe,[-1,-0.5,0])
+        friend_trusts['uknow'] = fuzz.trimf(friend_trusts.universe,[0,0,self.beliefs['friend_definition']/2])
+        friend_trusts['just_knowed']= fuzz.trimf(friend_trusts.universe,[self.beliefs['friend_definition']/2,self.beliefs['friend_definition']/2,self.beliefs['friend_definition']])
+        friend_trusts['good_friend']= fuzz.trimf(friend_trusts.universe,[self.beliefs['friend_definition'],self.beliefs['friend_definition'],1])
+        
+        friend_experience['negative'] = fuzz.trimf(friend_experience.universe,[-1,-1,1])
+        friend_experience['neutral']= fuzz.trimf(friend_experience.universe,[-0.5,0,0.5])
+        friend_experience['positive']= fuzz.trimf(friend_experience.universe,[0,1,1])
+        
+        like_score['negative'] = fuzz.trimf(like_score.universe,[-1,-0.5,0])
+        like_score['neutral']= fuzz.trimf(like_score.universe,[-0.5,0,0.5])
+        like_score['positive']= fuzz.trimf(like_score.universe,[0,0.5,1])
+
+
+
+        
+        likes_fuzzy['low_success'] = fuzz.trimf(likes_universe, [0, 0, self.low_success_def])
+        likes_fuzzy['mid_success'] = fuzz.trimf(likes_universe, [self.mid_success_def, self.mid_success_def, self.high_success_def])
+        likes_fuzzy['high_success'] = fuzz.trimf(likes_universe, [self.mid_success_def, self.high_success_def, max(likes_universe)])
+        
+        
+        dislikes_fuzzy['low_success'] = fuzz.trimf(dislikes_universe, [0, self.low_success_def, self.mid_success_def])
+        dislikes_fuzzy['mid_success'] = fuzz.trimf(dislikes_universe, [self.mid_success_def, self.mid_success_def, self.high_success_def])
+        dislikes_fuzzy['high_success'] = fuzz.trimf(dislikes_universe, [self.mid_success_def, self.high_success_def, max(dislikes_universe)])
+        
+        shares_fuzzy['low_success'] = fuzz.trimf(shares_universe, [0, self.low_success_def, self.mid_success_def])
+        shares_fuzzy['mid_success'] = fuzz.trimf(shares_universe, [self.mid_success_def, self.mid_success_def, self.high_success_def])
+        shares_fuzzy['high_success'] = fuzz.trimf(shares_universe, [self.mid_success_def, self.high_success_def, max(shares_universe)])
+
+        
+
+        relevance['no_relevance'] = fuzz.trimf(relevance.universe, [-1, -0.5, 0])
+        relevance['low_relevance'] = fuzz.trimf(relevance.universe, [-0.5, 0, 0.5])
+        relevance['mid_relevance'] = fuzz.trimf(relevance.universe, [0, 0.5, 1])
+        relevance['high_relevance'] = fuzz.trimf(relevance.universe, [0.5, 0.5, 1])
+        
+        
+        friendship['no_friendship'] = fuzz.trimf(friendship.universe, [-1, -0.5, 0])
+        friendship['low_friendship'] = fuzz.trimf(friendship.universe, [0, 0.3, 0.5])
+        friendship['mid_friendship'] = fuzz.trimf(friendship.universe, [0.5, 0.5, 1])
+        friendship['high_friendship'] = fuzz.trimf(friendship.universe, [0.5, 1, 1])
+        
+        group_conform['no_group_conform'] = fuzz.trimf(group_conform.universe, [0, 0, 0.5])
+        group_conform['low_group_conform'] = fuzz.trimf(group_conform.universe, [0, 0.5, 1])
+        group_conform['mid_group_conform'] = fuzz.trimf(group_conform.universe, [0.5, 0.5, 1])
+        group_conform['high_group_conform'] = fuzz.trimf(group_conform.universe, [0.5, 1, 1])
+        
+
+        return likes_fuzzy,dislikes_fuzzy,shares_fuzzy,group_conform,relevance,friend_trusts,friend_experience,friendship,like_score
+        
+
 
     def step(self):
         global performed_an_action
@@ -467,7 +567,8 @@ class SocialModel(Model):
                     reaction_brobability=np.clip(np.random.normal(loc=0.5,scale=0.1),0,1),
                     imitation_influence=np.clip(np.random.normal(loc=0.5,scale=0.1),0,1),
                     group_conformity=np.clip(np.random.normal(loc=0.5,scale=0.1),0,1),
-                    memory_strength=np.random.randint(len(posts))
+                    memory_strength=np.random.randint(len(posts)),
+                    user_type=users_types[np.random.randint(len(users_types))]
                 )
                 self.schedule.add(agent)
 

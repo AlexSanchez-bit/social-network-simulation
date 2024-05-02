@@ -1,0 +1,100 @@
+{
+    "variables_difusas": {
+        "likes": {
+            "universo": {
+                "inicio": 0,
+                "fin": "máximo_likes",
+                "paso": 1
+            },
+            "conjuntos_difusos": {
+                "low_success": {
+                    "membresía": "[0, low_success_def, mid_success_def]"
+                },
+                "mid_success": {
+                    "membresía": "[mid_success_def, mid_success_def, high_success_def]"
+                },
+                "high_success": {
+                    "membresía": "[mid_success_def, high_success_def, high_success_def]"
+                }
+            }
+        },
+        "dislikes": {
+            "universo": {
+                "inicio": 0,
+                "fin": "máximo_dislikes",
+                "paso": 1
+            },
+            "conjuntos_difusos": {
+                "low_success": {
+                    "membresía": "[0, low_success_def, mid_success_def]"
+                },
+                "mid_success": {
+                    "membresía": "[mid_success_def, mid_success_def, high_success_def]"
+                },
+                "high_success": {
+                    "membresía": "[mid_success_def, high_success_def, high_success_def]"
+                }
+            }
+        },
+        "shared": {
+            "universo": {
+                "inicio": 0,
+                "fin": "máximo_compartidos",
+                "paso": 1
+            },
+            "conjuntos_difusos": {
+                "low_success": {
+                    "membresía": "[0, low_success_def, mid_success_def]"
+                },
+                "mid_success": {
+                    "membresía": "[mid_success_def, mid_success_def, high_success_def]"
+                },
+                "high_success": {
+                    "membresía": "[mid_success_def, high_success_def, high_success_def]"
+                }
+            }
+        },
+        "relevance": {
+            "universo": {
+                "inicio": 0,
+                "fin": 1,
+                "paso": 0.00001
+            },
+            "conjuntos_difusos": {
+                "no_relevance": {
+                    "membresía": "[0, 0, 0.5]"
+                },
+                "low_relevance": {
+                    "membresía": "[0, 0.5, 1]"
+                },
+                "mid_relevance": {
+                    "membresía": "[0.5, 1, 1]"
+                },
+                "high_relevance": {
+                    "membresía": "[0.5, 1, 1]"
+                }
+            }
+        },
+        "group_conform": {
+            "universo": {
+                "inicio": 0,
+                "fin": 1,
+                "paso": 0.00001
+            },
+            "conjuntos_difusos": {
+                "no_group_conform": {
+                    "membresía": "[0, 0, 0.5]"
+                },
+                "low_group_conform": {
+                    "membresía": "[0, 0.5, 1]"
+                },
+                "mid_group_conform": {
+                    "membresía": "[0.5, 1, 1]"
+                },
+                "high_group_conform": {
+                    "membresía": "[0.5, 1, 1]"
+                }
+            }
+        }
+    }
+}
