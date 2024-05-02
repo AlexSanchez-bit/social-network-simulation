@@ -18,6 +18,7 @@ characteristics =None
 def run_simulations(number_agents=10,number_posts=100,simulations_count=1,selectes_characteristics=[0,1,2,3,4,5],postgen_mean=None,user_afinity_means=None):
     global performed_an_action
     global characteristics
+    global posts
     #loading characteristics from topic file
     if characteristics is None:
         characteristics = load_characteristics()
@@ -44,27 +45,25 @@ def run_simulations(number_agents=10,number_posts=100,simulations_count=1,select
     atention_time = []
     collected_opinions=[]
 
+    for j in range(posts_number):
+        post_features = np.clip(np.random.normal(loc=postgen_mean,size=len(characteristics)),0,1)
+        posts.append(
+              {"features": post_features, "likes": [], "dislikes": [], "shared": 0,'author':None}
+        )
     for i in range(0, simulations_count):
         # generate more posts
-        for j in range(posts_number):
-            post_features = np.clip(np.random.normal(loc=postgen_mean,size=len(characteristics)),0,1)
-            posts.append(
-                {"features": post_features, "likes": [], "dislikes": [], "shared": 0}
-            )
-
         if i == 0 or change_population_each:
             model = SocialModel(N,characteristics,affinity_means=user_afinity_means)
-        # sending initial posts to agents
-        for k in range(0, len(posts)):
-            sender_id = np.random.randint(0, N)
-            post_id = np.random.randint(0, len(posts))
-            print(f"sistema: enviando el post {post_id} a el usuario {sender_id}")
-            post = posts[post_id]  # Características aleatorias del post
-            model.schedule.agents[sender_id].react_to_post(post_id)
-
         # Ejecutar la simulación
         horas = 0
         while performed_an_action:
+            for _ in range(0,np.random.randint(0, len(posts))):
+                sender_id = np.random.randint(0, N)
+                post_id = np.random.randint(0, len(posts))
+                print(f"sistema: enviando el post {post_id} a el usuario {sender_id}")
+                post = posts[post_id]  # Características aleatorias del post
+                model.schedule.agents[sender_id].react_to_post(post_id)
+
             performed_an_action = False
             print(f"------------horas{horas}----------------")
             model.step()

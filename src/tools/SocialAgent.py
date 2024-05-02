@@ -1,6 +1,9 @@
 from mesa import Agent, Model
 from mesa.time import RandomActivation
 import numpy as np
+import random
+import skfuzzy as fuzz
+from skfuzzy import control as ctrl
 
 
 posts = []
@@ -28,13 +31,17 @@ class SocialAgent(Agent):
         reaction_brobability=0.8,
         imitation_influence=0.4,
         group_conformity=0.3,
-        low_success_definition=5,
-        mid_success_definition =10,
-        high_success_definition =100,
+        low_success_definition=0,
+        mid_success_definition =1,
+        high_success_definition =5,
         remembered_posts=[],
-        memory_strength=1
+        memory_strength=1,
+        post_probability=1,
+        user_type_rules=[]
     ):
         super().__init__(unique_id, model)
+        self.post_probability=post_probability
+        self.user_type_rules = user_type_rules
         self.beliefs = {
             "affinity": affinity_beliefs,
             "trust": trust_beliefs,
@@ -45,6 +52,7 @@ class SocialAgent(Agent):
             "extroversion": extroversion,
             "curiosity": curiosity,
             "reaction_brobability": reaction_brobability,
+            "group_likes":[ 0.000001 for _ in affinity_beliefs]
 
         }
         self.desires = {
@@ -57,7 +65,7 @@ class SocialAgent(Agent):
             "relevance": relevance_weight,
             "imitation_influence": imitation_influence,
             "group_conformity": group_conformity,
-            "imitation_target": [],
+            "post_target": affinity_beliefs,
         }
         self.intentions = []
         self.id = unique_id
@@ -199,6 +207,10 @@ class SocialAgent(Agent):
 
             if react_probability <= self.beliefs["reaction_brobability"]:
                 return
+            self.remembered_posts.append(len(posts)-1)
+            while len(self.remembered_posts) > self.memory_strength:
+                self.remembered_posts.pop(0)
+
         if len(self.most_popular_publications) > self.memory_strength:
             for i, index in enumerate(self.most_popular_publications):
                         if len(posts[post_id]['likes']) > len(posts[index]['likes']) :
@@ -260,25 +272,126 @@ class SocialAgent(Agent):
                     friends_who_likes_posts += 1
                 elif friend_id in posts[post_id]["dislikes"]:
                     friends_who_likes_posts -= 1
+
+        if len(self.beliefs['group_likes']) > 0:
+            self.beliefs['group_likes']= [(x + y) / 2 for x, y in zip(posts[post_id]["features"], self.beliefs['group_likes'])]
+        else:
+            self.beliefs['group_likes']=posts[post_id]["features"]
         # si sus amigos aceptan una idea entonces el tambien las acepta
         friends_impact = friends_who_likes_posts / max(friends, 1)
         if friends_impact >= self.desires["group_conformity"]:
             move_vector = self.beliefs["affinity"] - posts[post_id]["features"]
-            move_vector = move_vector / np.linalg.norm(
+            move_vector = move_vector / (np.linalg.norm(
                 move_vector
-            )  # normalizing the vector
+            )+0.000000001)  # normalizing the vector
             move_vector = (
                 move_vector * self.beliefs["others_impact"]
             )  # changing the believes in the matter of the impact of the others
             self.beliefs["affinity"] += move_vector
         return friends_impact
+    
 
+    def post_content(self):
+                print('posting popular')
+                posts.append(
+                    {"features": self.desires['post_target'], "likes": [], "dislikes": [], "shared": 0,'author':self.id}
+                )
+                self.react_to_post(len(posts)-1)
+                self.remembered_posts.append(len(posts)-1)
+                while len(self.remembered_posts) > self.memory_strength:
+                    self.remembered_posts.pop(0)
+                
+    def check_post_grow(self):
+        memory_posts = random.randint(0,min(len(self.remembered_posts),self.memory_strength))
+        on_mind_posts= random.sample(self.remembered_posts,memory_posts) 
+        
+        likes_universe = np.arange(0, max(max([len(post['likes']) for post in posts]),self.high_success_def)+1, 1)
+        dislikes_universe = np.arange(0, max(max([len(post['dislikes']) for post in posts]),self.high_success_def)+1, 1)
+        shares_universe = np.arange(0, max(self.high_success_def,max([post['shared'] for post in posts]))+1, 1)
+
+        relevance = ctrl.Consequent(np.arange(0,1,0.00001),'relevance')
+        group_conform = ctrl.Antecedent(np.arange(0,1,0.00001),'group_conform')
+        
+        likes_fuzzy = ctrl.Antecedent(likes_universe,'likes')
+        dislikes_fuzzy = ctrl.Antecedent(dislikes_universe,'dislikes')
+        shares_fuzzy = ctrl.Antecedent(shares_universe,'shared')
+
+        
+        likes_fuzzy['low_success'] = fuzz.trimf(likes_universe, [0, 0, self.low_success_def])
+        likes_fuzzy['mid_success'] = fuzz.trimf(likes_universe, [self.mid_success_def, self.mid_success_def, self.high_success_def])
+        likes_fuzzy['high_success'] = fuzz.trimf(likes_universe, [self.mid_success_def, self.high_success_def, self.high_success_def])
+        
+        
+        dislikes_fuzzy['low_success'] = fuzz.trimf(dislikes_universe, [0, self.low_success_def, self.mid_success_def])
+        dislikes_fuzzy['mid_success'] = fuzz.trimf(dislikes_universe, [self.mid_success_def, self.mid_success_def, self.high_success_def])
+        dislikes_fuzzy['high_success'] = fuzz.trimf(dislikes_universe, [self.mid_success_def, self.high_success_def, self.high_success_def])
+        
+        shares_fuzzy['low_success'] = fuzz.trimf(shares_universe, [0, self.low_success_def, self.mid_success_def])
+        shares_fuzzy['mid_success'] = fuzz.trimf(shares_universe, [self.mid_success_def, self.mid_success_def, self.high_success_def])
+        shares_fuzzy['high_success'] = fuzz.trimf(shares_universe, [self.mid_success_def, self.high_success_def, self.high_success_def])
+
+        
+
+        relevance['no_relevance'] = fuzz.trimf(relevance.universe, [0, 0, 0.5])
+        relevance['low_relevance'] = fuzz.trimf(relevance.universe, [0, 0.5, 1])
+        relevance['mid_relevance'] = fuzz.trimf(relevance.universe, [0.5, 1, 1])
+        relevance['high_relevance'] = fuzz.trimf(relevance.universe, [0.5, 1, 1])
+        
+        group_conform['no_group_conform'] = fuzz.trimf(group_conform.universe, [0, 0, 0.5])
+        group_conform['low_group_conform'] = fuzz.trimf(group_conform.universe, [0, 0.5, 1])
+        group_conform['mid_group_conform'] = fuzz.trimf(group_conform.universe, [0.5, 1, 1])
+        group_conform['high_group_conform'] = fuzz.trimf(group_conform.universe, [0.5, 1, 1])
+
+
+        
+        reglas = []
+
+        # Regla 1: Si hay alto éxito con likes y bajo éxito en dislikes, entonces es relevante
+        reglas.append(ctrl.Rule(likes_fuzzy['high_success'] & dislikes_fuzzy['low_success'], relevance['high_relevance']))
+        reglas.append(ctrl.Rule(likes_fuzzy['low_success'] | dislikes_fuzzy['high_success'], relevance['no_relevance']))
+        reglas.append(ctrl.Rule(~likes_fuzzy['high_success'] | ~dislikes_fuzzy['high_success'], relevance['low_relevance']))
+        # Regla 2: Si es relevante y se conforma al grupo, entonces sigue siendo relevante
+        reglas.append(ctrl.Rule(relevance['high_relevance'] & group_conform['high_group_conform'], relevance['high_relevance']))
+
+        # Regla 3: Si es relevante pero no se conforma al grupo, entonces no es relevante
+        # reglas.append(ctrl.Rule(relevance['high_relevance'] & group_conform['no_group_conform'], relevance['no_relevance']))
+
+        control_system = ctrl.ControlSystem(reglas)
+
+        system = ctrl.ControlSystemSimulation(control_system)
+
+        max_relevance = 0
+        best_post = -1 
+        for post in on_mind_posts:
+            system.input['likes'] = len(posts[post]['likes'])
+            system.input['dislikes'] = len(posts[post]['dislikes'])
+            print(
+                len(posts[post]['likes']),
+                 len(posts[post]['dislikes'])
+            )
+            # system.input['shared'] = posts[post]['shared']
+            system.input['group_conform'] = np.cos((np.dot(self.beliefs['group_likes'],posts[post]['features']))/(np.linalg.norm(self.beliefs['group_likes'])*np.linalg.norm(posts[post]['features'])))
+            
+            system.compute()
+            
+            if system.output['relevance'] > max_relevance:
+                best_post = post
+        if best_post >=0: 
+            self.desires['post_target'] =posts[best_post]['features']
+        
 
     def step(self):
         global performed_an_action
         global posts
         global total_shares
         agent_intentions = self.intentions
+        
+        tiempo_hasta_proxima_publicacion = np.random.exponential(1/ 0.1)
+        
+        if tiempo_hasta_proxima_publicacion < self.beliefs['curiosity']:
+            self.check_post_grow()
+        if tiempo_hasta_proxima_publicacion < self.post_probability:
+            self.post_content()
         # sorting agent intentions by liked score
         agent_intentions = list(
             sorted(agent_intentions, key=lambda x: x[1], reverse=True)
@@ -354,6 +467,7 @@ class SocialModel(Model):
                     reaction_brobability=np.clip(np.random.normal(loc=0.5,scale=0.1),0,1),
                     imitation_influence=np.clip(np.random.normal(loc=0.5,scale=0.1),0,1),
                     group_conformity=np.clip(np.random.normal(loc=0.5,scale=0.1),0,1),
+                    memory_strength=np.random.randint(len(posts))
                 )
                 self.schedule.add(agent)
 

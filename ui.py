@@ -26,21 +26,6 @@ def process_input(prompt:str, words=50):
     user_topics = extract_topics(prompt, llm=llm)
     eq_topics, topics_relevance = build_topics_relevances(user_topics)
 
-<<<<<<< HEAD
-    st.write(number_agent)
-    st.write(user_goals)
-    st.write(user_topics)
-    st.write(topics_relevance)  
-    
-    # tienes que pasarle un array con los indices que interesan y el otro con los pesos
-    run_simulations(
-        number_agents=number_agent,
-        number_posts=1000,
-        simulations_count=10,
-        selectes_characteristics=user_topics,
-        postgen_mean=topics_relevance,
-        user_afinity_means=topics_relevance)
-=======
     x, y = st.columns(2)
     with x:
         st.write(f"__Number of people__: {number_agent}")
@@ -90,7 +75,6 @@ def process_input(prompt:str, words=50):
     topics = load_characteristics()
     for [i, v] in best_sol:
         st.write(f"Topic: {topics[i]}, Pertenece: {v}")        
->>>>>>> b50bce1c142d00c9c43b414d78c0ea646f30bf97
 
     st.write('### Example of a post')
     post = build_post(
