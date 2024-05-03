@@ -8,3 +8,4 @@ faiss-cpu
 pickle
 anthropic
 streamlit
+scikit-fuzzy
