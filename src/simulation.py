@@ -56,8 +56,9 @@ def run_simulations(number_agents=10,number_posts=100,simulations_count=1,select
             model = SocialModel(N,characteristics,affinity_means=user_afinity_means)
         # Ejecutar la simulación
         horas = 0
-        while horas <= 10000:
-            for _ in range(0, len(posts)):
+        while horas < 1:
+            print(f"----------------------horas{horas}----------------------------")
+            for _ in range(0,np.random.randint(0,len(posts))):
                 sender_id = np.random.randint(0, N)
                 post_id = np.random.randint(0, len(posts))
                 print(f"sistema: enviando el post {post_id} a el usuario {sender_id}")
@@ -95,3 +96,12 @@ def run_simulations(number_agents=10,number_posts=100,simulations_count=1,select
         posts, N, characteristics,selectes_characteristics, total_likes, total_dislikes, total_shares
     )
     user_opinions(np.array(collected_opinions),characteristics,selectes_characteristics)
+    
+
+    return (
+        lambda x=None: show_data_analisis(posts, N, total_shares),
+        lambda x=None: stadistics_per_characteristic(
+            posts, N, characteristics,selectes_characteristics, total_likes, total_dislikes, total_shares
+        ),
+        lambda x=None: user_opinions(np.array(collected_opinions),characteristics,selectes_characteristics)
+    )

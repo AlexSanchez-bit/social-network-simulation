@@ -134,8 +134,8 @@ class SocialAgent(Agent):
             system.input['friend_experience'] =self.get_friend_experience(posts[post_id]['author'])
             system.input['like_score']=like_score
             system.compute()
-            print('entrada: ',system.input)
-            print('computado de las reglas del share : ',system.output,share_meter)
+            # print('entrada: ',system.input)
+            # print('computado de las reglas del share : ',system.output,share_meter)
             if system.output['friendship'] >= share_meter:
                 self.intentions.append(
                     ("share", (friend_rate + like_score) / 2, post_id, friend_id)
@@ -297,11 +297,11 @@ class SocialAgent(Agent):
             
         system.input['like_score']=like_score
         system.compute()
-        print('entrada: ',system.input)
-        print('computado de las reglas del like : ',system.output,self.beliefs["like_probability"])
+        # print('entrada: ',system.input)
+        # print('computado de las reglas del like : ',system.output,self.beliefs["like_probability"])
         if system.output['relevance'] >= self.beliefs["like_probability"]:
             self.intentions.append(("like", like_score, post_id))
-        elif system.output['relevance']< 0 and system.output['relevance'] >= -1*self.beliefs["like_probability"]:
+        elif system.output['relevance']< 0 and system.output['relevance'] <= -1*self.beliefs["like_probability"]:
             self.intentions.append(("dislike", -1*like_score, post_id))
 
 
@@ -338,7 +338,7 @@ class SocialAgent(Agent):
     
 
     def post_content(self):
-                print('posting popular')
+                print(f'{self.unique_id} posting popular')
                 posts.append(
                     {"features": self.desires['post_target'], "likes": [], "dislikes": [], "shared": 0,'author':self.id}
                 )
@@ -433,7 +433,7 @@ class SocialAgent(Agent):
         friend_trusts['just_knowed']= fuzz.trimf(friend_trusts.universe,[self.beliefs['friend_definition']/2,self.beliefs['friend_definition']/2,self.beliefs['friend_definition']])
         friend_trusts['good_friend']= fuzz.trimf(friend_trusts.universe,[self.beliefs['friend_definition'],self.beliefs['friend_definition'],1])
         
-        friend_experience['negative'] = fuzz.trimf(friend_experience.universe,[-1,-1,1])
+        friend_experience['negative'] = fuzz.trimf(friend_experience.universe,[-1,-1,0])
         friend_experience['neutral']= fuzz.trimf(friend_experience.universe,[-0.5,0,0.5])
         friend_experience['positive']= fuzz.trimf(friend_experience.universe,[0,1,1])
         
@@ -466,7 +466,7 @@ class SocialAgent(Agent):
         
         
         friendship['no_friendship'] = fuzz.trimf(friendship.universe, [-1, -0.5, 0])
-        friendship['low_friendship'] = fuzz.trimf(friendship.universe, [0, 0.3, 0.5])
+        friendship['low_friendship'] = fuzz.trimf(friendship.universe, [0, 0, 0.5])
         friendship['mid_friendship'] = fuzz.trimf(friendship.universe, [0.5, 0.5, 1])
         friendship['high_friendship'] = fuzz.trimf(friendship.universe, [0.5, 1, 1])
         
@@ -568,7 +568,7 @@ class SocialModel(Model):
                     imitation_influence=np.clip(np.random.normal(loc=0.5,scale=0.1),0,1),
                     group_conformity=np.clip(np.random.normal(loc=0.5,scale=0.1),0,1),
                     memory_strength=np.random.randint(len(posts)),
-                    user_type=users_types[np.random.randint(len(users_types))]
+                    user_type=users_types[np.random.randint(0,len(users_types))]
                 )
                 self.schedule.add(agent)
 

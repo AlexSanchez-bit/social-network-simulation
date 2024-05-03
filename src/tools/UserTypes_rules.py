@@ -8,15 +8,17 @@ def get_user_type_rules(likes_fuzzy, dislikes_fuzzy, shares_fuzzy, group_conform
     rules = []
     if user_type == 'normal':
         # Existing rules for normal users
-        rules.append(ctrl.Rule(likes_fuzzy['high_success'] & dislikes_fuzzy['low_success'], relevance['high_relevance']))
+        rules.append(ctrl.Rule(likes_fuzzy['high_success'] & dislikes_fuzzy['low_success'], relevance['low_relevance']))
         rules.append(ctrl.Rule(shares_fuzzy['high_success'] & dislikes_fuzzy['low_success'], relevance['high_relevance']))
-        rules.append(ctrl.Rule(likes_fuzzy['low_success'] | dislikes_fuzzy['high_success'], relevance['high_relevance']))
-        rules.append(ctrl.Rule(likes_fuzzy['low_success'] | ~shares_fuzzy['high_success'], relevance['high_relevance']))
+        rules.append(ctrl.Rule(likes_fuzzy['low_success'] | dislikes_fuzzy['high_success'], relevance['mid_relevance']))
+        rules.append(ctrl.Rule(likes_fuzzy['low_success'] | ~shares_fuzzy['high_success'], relevance['mid_relevance']))
         rules.append(ctrl.Rule(relevance['high_relevance'] & group_conform['high_group_conform'], relevance['high_relevance']))
         rules.append(ctrl.Rule(friend_experience['negative'], friendship['no_friendship']))
-        rules.append(ctrl.Rule(friend_experience['positive'] & friend_trust['good_friend'] | friend_trust['just_knowed'], friendship['mid_friendship']))
+        rules.append(ctrl.Rule(~friend_experience['negative'], friendship['high_friendship']))
+        rules.append(ctrl.Rule(friend_experience['positive'] & friend_trust['good_friend'] | friend_trust['just_knowed'], friendship['high_friendship']))
         rules.append(ctrl.Rule(friend_experience['positive'] & friend_trust['good_friend'] | friend_trust['just_knowed'], relevance['high_relevance']))
-        rules.append(ctrl.Rule(friend_trust['hated'], relevance['no_relevance']))
+        rules.append(ctrl.Rule(~friend_trust['hated'], friendship['mid_friendship']))
+        rules.append(ctrl.Rule(friend_trust['hated'], friendship['no_friendship']))
         rules.append(ctrl.Rule(like_score['negative'], relevance['no_relevance']))
         rules.append(ctrl.Rule(relevance['high_relevance'] & group_conform['no_group_conform'], relevance['no_relevance']))
     elif user_type == 'hater':
