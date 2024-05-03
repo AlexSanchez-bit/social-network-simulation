@@ -1,5 +1,6 @@
 import matplotlib.pyplot as plt
 import numpy as np
+import pandas as pd
 # from sklearn.cluster import MeanShift
 
 
@@ -127,3 +128,38 @@ def user_opinions(M, all_characteristics, characteristics):
     # Devolver la figura en lugar de mostrarla
     return fig
 
+def descriptive_analisys(posts, users_in_networ):
+    # Crear un DataFrame con los datos
+    data = {
+        "likes": [len(post["likes"]) for post in posts],
+        "dislikes": [len(post["dislikes"]) for post in posts],
+        "shares": [post["shared"] for post in posts],
+    }  
+    df = pd.DataFrame(data)
+    stats = df.describe()
+    selected_stats = stats.loc[['std', 'mean', 'max']]
+
+    rename = ['Media', 'Desviación estándar', 'Valor Máximo']
+    selected_stats.index = rename
+
+    return selected_stats
+
+def correlation_analisys(posts, users_in_networ):
+    # Crear un DataFrame con los datos
+    data = {
+        "likes": [len(post["likes"]) for post in posts],
+        "dislikes": [len(post["dislikes"]) for post in posts],
+        "shares": [post["shared"] for post in posts],
+    }  
+    df = pd.DataFrame(data)
+    
+    correlation_matrix = df.corr()
+    
+    fig = plt.figure(figsize=(8, 6))
+    plt.imshow(correlation_matrix, cmap='coolwarm', interpolation='nearest')
+    plt.colorbar()  # Mostrar la barra de colores que indica el valor de correlación
+    plt.title('Matriz de correlación')
+    plt.xticks(range(len(correlation_matrix)), correlation_matrix.columns, rotation=45)
+    plt.yticks(range(len(correlation_matrix)), correlation_matrix.columns)
+    
+    return fig
