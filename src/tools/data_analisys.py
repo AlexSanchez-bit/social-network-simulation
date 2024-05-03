@@ -34,11 +34,7 @@ def stadistics_per_characteristic(
     individual_scores = []
     global_scores = []
 
-<<<<<<<< HEAD:src/tools/DataAnalisys.py
-    for characteristic_index in characteristics:
-========
     for characteristic_index in range(len(all_characteristics)):
->>>>>>>> b50bce1c142d00c9c43b414d78c0ea646f30bf97:src/tools/data_analisys.py
         likes_sum = 0
         dislikes_sum = 0
         shared_sum = 0
@@ -113,23 +109,6 @@ def stadistics_per_characteristic(
     # Devolver la figura en lugar de mostrarla
     return fig, global_scores
     
-<<<<<<<< HEAD:src/tools/DataAnalisys.py
-def user_opinions(M,all_characteristics,characteristics):
-    # Crear una nueva figura para las gráficas
-    plt.figure(figsize=(10, 5))
-    n,m = M.shape 
-    # Iterar sobre las columnas de la matriz
-    for i in range(n):
-        mean_values=[]
-        for j in characteristics:
-            mean_values.append(M[i,j])
-        plt.plot(range(len(characteristics)),mean_values, label=f'avance de las opiniones en la iteracion{i} ')  # Graficar la columna j vs los índices de fila
-
-    # Configurar las etiquetas de los ejes y el título
-    plt.xlabel(f"Características: {','.join(all_characteristics[x] for x in characteristics )}")
-    plt.ylabel('Relevancia de la Característica')
-    plt.title('opinión de los agentes respecto a las características')
-========
 
 def user_opinions(M, all_characteristics, characteristics):
     mean_opinions = np.mean(M, axis=0)
@@ -142,8 +121,6 @@ def user_opinions(M, all_characteristics, characteristics):
     ax.set_xlabel(f"Características: {','.join(all_characteristics[x] for x in characteristics )}")
     ax.set_ylabel('Relevancia de la Característica')
     ax.set_title('opinión de los agentes respecto a las características')
->>>>>>>> b50bce1c142d00c9c43b414d78c0ea646f30bf97:src/tools/data_analisys.py
-
     # Agregar leyenda
     ax.legend()
 
