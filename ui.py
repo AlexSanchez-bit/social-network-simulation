@@ -1,7 +1,6 @@
 import streamlit as st
 import numpy as np
 from src.tools.llm_claude import LLMClaude
-from src.tools.llm_openai import LLMOpenAI
 from src.tools.prompts import extract_number_agents, extract_topics, extract_user_goals, build_post, TopicRelevance
 from src.tools.topics import build_topics_relevances
 from src.tools.meta import run_meta
@@ -18,7 +17,6 @@ def process_input(prompt:str, words=50):
         return
 
     llm = LLMClaude()
-    # llm = LLMOpenAI()
     number_agent = extract_number_agents(prompt, llm=llm)
     user_goals = extract_user_goals(prompt, llm=llm)
     user_topics = extract_topics(prompt, llm=llm)
