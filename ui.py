@@ -9,8 +9,6 @@ from src.tools.load_characteristics import load_characteristics
 
 from src.simulation import run_simulations
 
-from src.simulation import run_simulations
-
 st.title('Metrics in your Community')
 st.subheader("Learn to grow more in your network")
 
@@ -73,8 +71,9 @@ def process_input(prompt:str, words=50):
     )
 
     topics = load_characteristics()
-    for [i, v] in best_sol:
-        st.write(f"Topic: {topics[i]}, Pertenece: {v}")        
+    showing = [(topics[i], v) for [i,v] in best_sol]
+    for [topc, v] in showing:
+        st.write(f"Topic: {topc}, Pertenece: {v}")        
 
     st.write('### Example of a post')
     post = build_post(
