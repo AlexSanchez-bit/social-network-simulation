@@ -7,7 +7,9 @@ import numpy as np
 from src.tools.DataAnalisys import (
     show_data_analisis,
     stadistics_per_characteristic,
-    user_opinions
+    user_opinions,
+    descriptive_analisys,
+    correlation_analisys,
 )
 
 from src.tools.load_characteristics import load_characteristics
@@ -103,5 +105,7 @@ def run_simulations(number_agents=10,number_posts=100,simulations_count=1,select
         lambda x=None: stadistics_per_characteristic(
             posts, N, characteristics,selectes_characteristics, total_likes, total_dislikes, total_shares
         ),
-        lambda x=None: user_opinions(np.array(collected_opinions),characteristics,selectes_characteristics)
+        lambda x=None: user_opinions(np.array(collected_opinions),characteristics,selectes_characteristics),
+        lambda x=None: descriptive_analisys(posts, N),
+        lambda x=None: correlation_analisys(posts, N)
     )

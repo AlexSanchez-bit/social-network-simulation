@@ -37,7 +37,7 @@ def process_input(prompt:str, words=50):
         st.write([t['name'] for t in eq_topics])
     
     # tienes que pasarle un array con los indices que interesan y el otro con los pesos
-    a, b, c = run_simulations(
+    a, b, c, d, e = run_simulations(
         number_agents=number_agent,
         number_posts=30,
         simulations_count=1,
@@ -46,6 +46,9 @@ def process_input(prompt:str, words=50):
         user_afinity_means=topics_relevance
     )
 
+    pdDataFrame = d()
+    st.dataframe(pdDataFrame)
+     
     a1, a2, a3 = st.columns(3)
     f1, f2, f3 = a()
     with a1:
@@ -60,6 +63,9 @@ def process_input(prompt:str, words=50):
     
     f5 = c()
     st.pyplot(f5)
+    
+    f6 = e()
+    st.pyplot(f6)
     
     st.subheader("Best post that satisfies your goals")
     best_sol = run_meta(
